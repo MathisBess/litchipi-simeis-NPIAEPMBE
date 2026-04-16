@@ -1,0 +1,1964 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Simeis",
+    "description": "Simeis is a game player with an API\nTo play, you must start by creating a player with `/player/new/{name}`\nThe key you get from this API must be passed to each request as a HTTP header of key \"Simeis-Key\"",
+    "version": "0.1.3"
+  },
+  "servers": {},
+  "paths": {
+    "/ping": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The messasge \"pong\"",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "ping": "pong"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "system"
+        ],
+        "parameters": [],
+        "summary": "Test the connection to the server"
+      }
+    },
+    "/syslogs": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The list of events that occured for this player on the server",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "events": [
+                    {
+                      "event": {
+                        "ShipFlightFinished": 3117398384586514376
+                      },
+                      "timestamp": 1776160235.6837075,
+                      "type": "ShipFlightFinished"
+                    }
+                  ],
+                  "nb": 1
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "system"
+        ],
+        "parameters": [],
+        "summary": "Get the logs from the server"
+      }
+    },
+    "/version": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "the version of the game",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "version": "0.1.3"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "system"
+        ],
+        "parameters": [],
+        "summary": "Get the version of the game"
+      }
+    },
+    "/resources": {
+      "get": {
+        "description": "Informations returned:\n- Volume in cargo\n- Base market price\n- If extractable, its difficulty\n- If extractable, the minimum rank of the operator required",
+        "responses": {
+          "200": {
+            "description": "For each resource, returns basic informations",
+            "content": {
+              "application/json": {
+                "example": {
+                  "Alcohol": {
+                    "base-price": 16.0,
+                    "volume": 2.5
+                  },
+                  "Carbon": {
+                    "base-price": 4.0,
+                    "difficulty": 0.25,
+                    "min-rank": 0,
+                    "volume": 0.75
+                  },
+                  "Copper": {
+                    "base-price": 48.0,
+                    "difficulty": 2.75,
+                    "min-rank": 4,
+                    "volume": 3.0
+                  },
+                  "Fuel": {
+                    "base-price": 2.0,
+                    "volume": 2.0
+                  },
+                  "Gold": {
+                    "base-price": 64.0,
+                    "difficulty": 3.5,
+                    "min-rank": 6,
+                    "volume": 0.25
+                  },
+                  "Helium": {
+                    "base-price": 48.0,
+                    "difficulty": 2.75,
+                    "min-rank": 4,
+                    "volume": 3.0
+                  },
+                  "Hull": {
+                    "base-price": 2.0,
+                    "volume": 0.05
+                  },
+                  "Hydrogen": {
+                    "base-price": 4.0,
+                    "difficulty": 0.25,
+                    "min-rank": 0,
+                    "volume": 0.75
+                  },
+                  "Iron": {
+                    "base-price": 16.0,
+                    "difficulty": 0.9375,
+                    "min-rank": 2,
+                    "volume": 2.5
+                  },
+                  "Oil": {
+                    "base-price": 48.0,
+                    "volume": 3.0
+                  },
+                  "Oxygen": {
+                    "base-price": 16.0,
+                    "difficulty": 0.9375,
+                    "min-rank": 2,
+                    "volume": 2.5
+                  },
+                  "Ozone": {
+                    "base-price": 64.0,
+                    "difficulty": 3.5,
+                    "min-rank": 6,
+                    "volume": 0.25
+                  },
+                  "SulfuricAcid": {
+                    "base-price": 64.0,
+                    "volume": 0.25
+                  },
+                  "Water": {
+                    "base-price": 4.0,
+                    "volume": 0.75
+                  },
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "system"
+        ],
+        "parameters": [],
+        "summary": "Get informations on all the resources on game"
+      }
+    },
+    "/gamestats": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The game statistics for each player currently in the game",
+            "content": {
+              "application/json": {
+                "example": {
+                  "1809641971439093430": {
+                    "age": 1,
+                    "lost": false,
+                    "money": 719898673.1002418,
+                    "name": "test-rich-swagger",
+                    "potential": 404.0,
+                    "score": -445.06252313054154,
+                    "stations": {
+                      "52903": {
+                        "cargo": {
+                          "capacity": 1001.0,
+                          "resources": {
+                            "Fuel": 100.0,
+                            "Hull": 100.0,
+                            "Hydrogen": 1.0
+                          },
+                          "usage": 205.75
+                        },
+                        "crew": {
+                          "2836549214": {
+                            "member_type": "Operator",
+                            "rank": 1
+                          },
+                          "51463727": {
+                            "member_type": "Trader",
+                            "rank": 2
+                          }
+                        },
+                        "id": 52903,
+                        "idle_crew": {},
+                        "position": [
+                          250635636,
+                          2689605129,
+                          3611401889
+                        ],
+                        "trader": 51463727
+                      }
+                    }
+                  },
+                  "7104837252786233073": {
+                    "age": 0,
+                    "lost": false,
+                    "money": 72000.0,
+                    "name": "xX_GigaProf_Xx",
+                    "potential": 0.0,
+                    "score": 0.0,
+                    "stations": {
+                      "52903": {
+                        "cargo": {
+                          "capacity": 1000.0,
+                          "resources": {},
+                          "usage": 0.0
+                        },
+                        "crew": {},
+                        "id": 52903,
+                        "idle_crew": {},
+                        "position": [
+                          250635636,
+                          2689605129,
+                          3611401889
+                        ],
+                        "trader": null
+                      }
+                    }
+                  },
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "system"
+        ],
+        "parameters": [],
+        "summary": "Get the stats of the game, about all players"
+      }
+    },
+    "/market/prices": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The price for each resource",
+            "content": {
+              "application/json": {
+                "example": {
+                  "Alcohol": 16.0,
+                  "Carbon": 4.0,
+                  "Copper": 48.0,
+                  "Fuel": 2.0,
+                  "Gold": 64.0,
+                  "Helium": 48.0,
+                  "Hull": 2.0,
+                  "Hydrogen": 4.0,
+                  "Iron": 16.0,
+                  "Oil": 48.0,
+                  "Oxygen": 16.0,
+                  "Ozone": 64.0,
+                  "SulfuricAcid": 64.0,
+                  "Water": 4.0,
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "market"
+        ],
+        "parameters": [],
+        "summary": "Get prices of each resources on the market"
+      }
+    },
+    "/market/{station_id}/fee_rate": {
+      "get": {
+        "description": "Depends on the level of the trader",
+        "responses": {
+          "200": {
+            "description": "The fee rate",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "fee_rate": 0.1126563078263538
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "market"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Get the fee rate applied on the market of a station"
+      }
+    },
+    "/market/{station_id}/buy/{resource}/{amnt}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "How much was added to the cargo, how much money was removed, and the amount of fees",
+            "content": {
+              "application/json": {
+                "example": {
+                  "added_cargo": [
+                    "Hull",
+                    100.0
+                  ],
+                  "added_money": null,
+                  "error": "ok",
+                  "fees": 22.53126156527076,
+                  "removed_cargo": null,
+                  "removed_money": 222.53126156527077
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "market"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "resource",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "amnt",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy a specific resource on the market"
+      }
+    },
+    "/market/{station_id}/sell/{resource}/{amnt}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "How much was removed from the cargo, how much money was added, and the amount of fees",
+            "content": {
+              "application/json": {
+                "example": {
+                  "added_cargo": null,
+                  "added_money": 3.5493747686945847,
+                  "error": "ok",
+                  "fees": 0.4506252313054152,
+                  "removed_cargo": [
+                    "Hydrogen",
+                    1.0
+                  ],
+                  "removed_money": null
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "market"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "resource",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "amnt",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Sell a specific resource on the market"
+      }
+    },
+    "/player/{player_id}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Information about the player, complete if it's you, minimal if it's another player",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "id": 7104837252786233073,
+                  "name": "test-rich-swagger"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "player"
+        ],
+        "parameters": [
+          {
+            "name": "player_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Get the status from the player of a given id."
+      }
+    },
+    "/player/new/{name}": {
+      "post": {
+        "description": "The secret key must be used in the \"Simeis-Key\" HTTP header",
+        "responses": {
+          "200": {
+            "description": "The ID of the player, and its authentication secret key",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "key": "gaGgvygMr5h8uAK1pCaAF56k3Mc8bTNysAzGHbwKV/tqVr7NQ1LiY4KABI96rvLxQMEkrw7F4DUXF5MP6kXXQfaveVJnTN2XkDDb1VUdaG62hJOnKyAFVdN3EzaNRHC+KMdUCqL7DzozD5weMZZHontSBx1HSv/bRqnhH20CGIA=",
+                  "playerId": 7104837252786233073
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "player"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Creates a new player in the game"
+      }
+    },
+    "/ship/{ship_id}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The data for the ship",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cargo": {
+                    "capacity": 200.0,
+                    "resources": {
+                      "Hydrogen": 131.99999999999997
+                    },
+                    "usage": 99.0
+                  },
+                  "crew": {
+                    "4291297220": {
+                      "member_type": "Pilot",
+                      "rank": 1
+                    },
+                    "744370163": {
+                      "member_type": "Operator",
+                      "rank": 1
+                    }
+                  },
+                  "error": "ok",
+                  "fuel_tank": 997.2024594802069,
+                  "fuel_tank_capacity": 1000.0,
+                  "hull_decay": 49.95608071096094,
+                  "hull_resistance": 3000.0,
+                  "id": 3117398384586514376,
+                  "modules": {
+                    "1": {
+                      "modtype": "GasSucker",
+                      "operator": 744370163,
+                      "rank": 1,
+                      "totalcost": 0.0
+                    }
+                  },
+                  "owner": 1809641971439093430,
+                  "pilot": 4291297220,
+                  "position": [
+                    250635636,
+                    2689605129,
+                    3611401889
+                  ],
+                  "reactor_power": 2,
+                  "shield_power": 0,
+                  "state": "Idle",
+                  "stats": {
+                    "fuel_consumption": 0.28,
+                    "hull_usage_rate": 0.05,
+                    "speed": 100.0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Get the status of the ship"
+      }
+    },
+    "/ship/{ship_id}/wages": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The amount of credits consumed each second by the crew of this ship",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "wages": 6.75
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Compute how much wages cost per second for this ship"
+      }
+    },
+    "/ship/{ship_id}/travelcost/{x}/{y}/{z}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Travel informations on this destination",
+            "content": {
+              "application/json": {
+                "example": {
+                  "direction": [
+                    -0.8687631091619628,
+                    0.27424088929767027,
+                    0.4123622131045261
+                  ],
+                  "distance": 499.56080710960504,
+                  "duration": 4.995608071096051,
+                  "error": "ok",
+                  "fuel_consumption": 1.3987702599068943,
+                  "hull_usage": 24.978040355480253
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "y",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "z",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Compute how much will cost a travel to a specific position (X, Y, Z)"
+      }
+    },
+    "/ship/{ship_id}/navigate/{x}/{y}/{z}": {
+      "post": {
+        "description": "Ship will have the state InFlight during the travel",
+        "responses": {
+          "200": {
+            "description": "Travel informations on the destination",
+            "content": {
+              "application/json": {
+                "example": {
+                  "direction": [
+                    0.8687631091619628,
+                    -0.27424088929767027,
+                    -0.4123622131045261
+                  ],
+                  "distance": 499.56080710960504,
+                  "duration": 4.995608071096051,
+                  "error": "ok",
+                  "fuel_consumption": 1.3987702599068943,
+                  "hull_usage": 24.978040355480253
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "x",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "y",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "z",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Navigate to position (X, Y, Z)"
+      }
+    },
+    "/ship/{ship_id}/navigation/stop": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The position where the ship has stopped",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "position": [
+                    250635636,
+                    2689605129,
+                    3611401889
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Stop the naviguation, ship will become Idle, and stay in place"
+      }
+    },
+    "/ship/{ship_id}/extraction/start": {
+      "post": {
+        "description": "Ship will have the state \"Extracting\" until its cargo is full",
+        "responses": {
+          "200": {
+            "description": "The rate at which every resources are mined, and the time necessary to fill the cargo",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "mining_rate": {
+                    "Hydrogen": 49.99999999999999
+                  },
+                  "time_fill_cargo": 5.333333333333334
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Start the extraction of resources on the planet"
+      }
+    },
+    "/ship/{ship_id}/extraction/stop": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Stop the extraction of resources on the planet, the ship state will be Idle"
+      }
+    },
+    "/ship/{ship_id}/unload/{station_id}/all": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "How much of each resource were unloaded, and if the ship cargo is empty or not",
+            "content": {
+              "application/json": {
+                "example": {
+                  "emptied": true,
+                  "error": "ok",
+                  "unloaded": {
+                    "Hydrogen": 131.99999999999997
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Unload the whole cargo of a ship into a station"
+      }
+    },
+    "/ship/{ship_id}/unload/{station_id}/{resource}/{amnt}": {
+      "post": {
+        "description": "Depending on the cargo space available on the station, may not unload anything",
+        "responses": {
+          "200": {
+            "description": "How much of this resource was effectively unloaded from the ship",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "unloaded": 1.0
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "ship"
+        ],
+        "parameters": [
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "resource",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "amnt",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Unload a specific amount of a specific resource on the station's storage"
+      }
+    },
+    "/station/{station_id}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "All the informations for the player on this station",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cargo": {
+                    "capacity": 1000.0,
+                    "resources": {},
+                    "usage": 0.0
+                  },
+                  "crew": {},
+                  "error": "ok",
+                  "id": 52903,
+                  "idle_crew": {},
+                  "position": [
+                    250635636,
+                    2689605129,
+                    3611401889
+                  ],
+                  "trader": null
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Get status of a station"
+      }
+    },
+    "/station/{station_id}/upgrades": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "List of the upgrades available, and their price",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cargo": 1.0069555500567189,
+                  "error": "ok",
+                  "trader": 53838.188416122895
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List the upgrades for a station currently available"
+      }
+    },
+    "/station/{station_id}/scan": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Scan information on all the stellar objects around this station",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "planets": [
+                    {
+                      "position": [
+                        250635202,
+                        2689605266,
+                        3611402095
+                      ],
+                      "solid": false,
+                      "temperature": 19658
+                    },
+                    {
+                      "position": [
+                        250636013,
+                        2689607147,
+                        3611402528
+                      ],
+                      "solid": false,
+                      "temperature": 9313
+                    },
+                    {
+                      "position": [
+                        250639651,
+                        2689606936,
+                        3611402731
+                      ],
+                      "solid": false,
+                      "temperature": 26073
+                    }
+                  ],
+                  "stations": [
+                    {
+                      "id": 52903,
+                      "position": [
+                        250635636,
+                        2689605129,
+                        3611401889
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Scan for planets around the station"
+      }
+    },
+    "/station/{station_id}/refuel/{ship_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "How much fuel was effectively added to the ship (and removed from the station cargo)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "added-fuel": 2.797540519793074,
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Use fuel in storage on the station to refuel the ship"
+      }
+    },
+    "/station/{station_id}/repair/{ship_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "How much hull was effectively used to repair the ship (and removed from the station cargo)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "added-hull": 49.95608071096094,
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Use the hull plates in storage on the station to repair the ship"
+      }
+    },
+    "/station/{station_id}/shipyard/list": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "For each ship, its statistics, and price",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "ships": [
+                    {
+                      "cargo_capacity": 200.0,
+                      "fuel_tank_capacity": 1000.0,
+                      "hull_resistance": 3000.0,
+                      "id": 3117398384586514376,
+                      "modules": {},
+                      "price": 65000.0,
+                      "reactor_power": 1
+                    },
+                    {
+                      "cargo_capacity": 400.0,
+                      "fuel_tank_capacity": 2000.0,
+                      "hull_resistance": 6000.0,
+                      "id": 7549029401437259560,
+                      "modules": {},
+                      "price": 134000.0,
+                      "reactor_power": 3
+                    },
+                    {
+                      "cargo_capacity": 1200.0,
+                      "fuel_tank_capacity": 4000.0,
+                      "hull_resistance": 20000.0,
+                      "id": 3821209863390545889,
+                      "modules": {},
+                      "price": 364000.0,
+                      "reactor_power": 10
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "shipyard"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List all the ships available for buying"
+      }
+    },
+    "/station/{station_id}/shipyard/upgrade/{ship_id}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The price of every upgrade available",
+            "content": {
+              "application/json": {
+                "example": {
+                  "CargoExpansion": {
+                    "price": 2400.0
+                  },
+                  "HullUpgrade": {
+                    "price": 900.0
+                  },
+                  "ReactorUpgrade": {
+                    "price": 4000.0
+                  },
+                  "Shield": {
+                    "price": 2500.0
+                  },
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "shipyard"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List all upgrades available for buying on a specific ship, on the station"
+      }
+    },
+    "/station/{station_id}/shipyard/buy/{ship_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The ID of the ship you just bought",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "id": 3117398384586514376
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "shipyard"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy a ship from the station's shop"
+      }
+    },
+    "/station/{station_id}/shipyard/upgrade/{ship_id}/{upgrade_type}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The cost of the upgrade",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cost": 4000.0,
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "shipyard"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "upgrade_type",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy an upgrade and install it on a ship"
+      }
+    },
+    "/station/{station_id}/crew/upgrade/ship/{ship_id}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "For each member, his type, rank, and price for next rank",
+            "content": {
+              "application/json": {
+                "example": {
+                  "4291297220": {
+                    "member-type": "Pilot",
+                    "price": 43703.70833044504,
+                    "rank": 2
+                  },
+                  "744370163": {
+                    "member-type": "Operator",
+                    "price": 1148.4466146364105,
+                    "rank": 2
+                  },
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List all the upgrades available for the crew of a specific ship"
+      }
+    },
+    "/station/{station_id}/crew/hire/{crewtype}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The ID of the hired crew member",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "id": 744370163
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crewtype",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Hire a new crew member on the station. Unless assigned, it will stay idle"
+      }
+    },
+    "/station/{station_id}/crew/upgrade/ship/{ship_id}/{crew_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "New rank, and cost of the upgrade",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cost": 1148.4466146364105,
+                  "error": "ok",
+                  "new-rank": 2
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Upgrade a crew member of a specific ship"
+      }
+    },
+    "/station/{station_id}/crew/upgrade/{crew_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "New rank, and cost of the upgrade",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cost": 19200.313483027312,
+                  "error": "ok",
+                  "new-rank": 2
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Upgrade a crew member of the station"
+      }
+    },
+    "/station/{station_id}/crew/assign/{crew_id}/trading": {
+      "post": {
+        "description": "The level of the trader will affect the fee rate applied on the market",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Assign a crew member as a trader on a station."
+      }
+    },
+    "/station/{station_id}/crew/assign/{crew_id}/ship/{ship_id}/pilot": {
+      "post": {
+        "description": "The level of the pilot will affect the speed of the ship, as well as it's fuel consumption",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Assign a crew member as a pilot on a ship."
+      }
+    },
+    "/station/{station_id}/crew/assign/{crew_id}/ship/{ship_id}/{mod_id}": {
+      "post": {
+        "description": "The level of the crew member will affect the extraction rate of the resources",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "mod_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Assign a crew member as an operator on a ship."
+      }
+    },
+    "/station/{station_id}/crew/assign/{crew_id}/industry/{industry_id}": {
+      "post": {
+        "description": "The level of the crew member will affect the production rate",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "industry_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Assign a crew member as an operator on an industry unit of a sttion."
+      }
+    },
+    "/station/{station_id}/shop/modules": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "For each module, its price",
+            "content": {
+              "application/json": {
+                "example": {
+                  "GasSucker": 4500.0,
+                  "Miner": 4500.0,
+                  "Pump": 4500.0,
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station_shop"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List all the modules available to buy on the station"
+      }
+    },
+    "/station/{station_id}/shop/modules/{ship_id}/upgrade": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "For each module, the type of module, and price of the next upgrade",
+            "content": {
+              "application/json": {
+                "example": {
+                  "1": {
+                    "module-type": "GasSucker",
+                    "price": 4500.0
+                  },
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station_shop"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List the available upgrades for a module on a ship"
+      }
+    },
+    "/station/{station_id}/shop/modules/{ship_id}/buy/{modtype}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The ID of the module, and the cost of the operation",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cost": 4500.0,
+                  "error": "ok",
+                  "id": 1
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station_shop"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "modtype",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy a ship module and install it on a ship"
+      }
+    },
+    "/station/{station_id}/shop/modules/{ship_id}/upgrade/{mod_id}": {
+      "post": {
+        "description": "The level of a module will affect the extraction rate for a resource, as well as what kind of resources it kind mine.",
+        "responses": {
+          "200": {
+            "description": "The new rank of the module, and the cost of the upgrade",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cost": 4500.0,
+                  "error": "ok",
+                  "new-rank": 2
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station_shop"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "ship_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "mod_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy an upgrade for a module installed on a ship"
+      }
+    },
+    "/station/{station_id}/shop/cargo/buy/{amount}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The cargo of the station",
+            "content": {
+              "application/json": {
+                "example": {
+                  "capacity": 1001.0,
+                  "error": "ok",
+                  "resources": {
+                    "Fuel": 100.0,
+                    "Hull": 100.0
+                  },
+                  "usage": 205.0
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "station_shop"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "amount",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy a storage expansion for the station"
+      }
+    },
+    "/station/{station_id}/industry/buy": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The price for each unit",
+            "content": {
+              "application/json": {
+                "example": {
+                  "AdvancedFuelRefinery": 18000.0,
+                  "AdvancedHullFoundry": 18000.0,
+                  "SimpleFuelRefinery": 8000.0,
+                  "SimpleHullFoundry": 8000.0,
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "industry"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "List all the industry units available to buy on the station"
+      }
+    },
+    "/station/{station_id}/industry/production/{industry_id}": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The resources needed in input of the unit, and the one produced in the output",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "inputs": [
+                    [
+                      "Hydrogen",
+                      1.5
+                    ],
+                    [
+                      "Oxygen",
+                      0.30000000000000004
+                    ],
+                    [
+                      "Carbon",
+                      1.875
+                    ],
+                    [
+                      "Water",
+                      0.6000000000000001
+                    ]
+                  ],
+                  "outputs": [
+                    [
+                      "Fuel",
+                      1.0
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "industry"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "industry_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Shows the production inputs & outputs of a particular unit"
+      }
+    },
+    "/station/{station_id}/industry/buy/{name}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The ID of the unit bought, and the cost of the transaction",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cost": 8000.0,
+                  "error": "ok",
+                  "id": 2802097789
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "industry"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Buy a new industry unit"
+      }
+    },
+    "/station/{station_id}/industry/upgrade/{industry_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The new rank of the industry unit",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "new-rank": 2
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "industry"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "industry_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Upgrade an industry unit"
+      }
+    },
+    "/station/{station_id}/industry/start/{industry_id}": {
+      "post": {
+        "description": "Unless started, an industry unit will NOT produce anything",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "industry"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "industry_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Start an industry unit"
+      }
+    },
+    "/station/{station_id}/industry/stop/{industry_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "Nothing",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "industry"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "industry_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Stop an industry unit"
+      }
+    }
+  }
+}
