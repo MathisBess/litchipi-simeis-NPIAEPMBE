@@ -1,0 +1,22 @@
+name : test 1
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        run: |
+          git clone https://oauth2:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git .
+        
+      - name: Vérification de l'environnement
+        run: |
+          rustc --version
+          cargo --version
+
+      - name: Vérification du code
+        run: cargo check
