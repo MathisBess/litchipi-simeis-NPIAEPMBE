@@ -196,7 +196,11 @@ impl Station {
         let pd = self.player_data.clone_val(pid).await.unwrap();
         let mut pd = pd.write().await;
         let Some(cm) = pd.idle_crew.0.remove(&id) else {
-            return Err(Errcode::CrewMemberNotIdle(id));
+            if pd.crew.0.contains_key(&id) {
+                return Err(Errcode::CrewMemberNotIdle(id));
+            } else {
+                return Err(Errcode::CrewMemberNotFound(id));
+            }
         };
 
         pd.crew.0.insert(id, cm);
@@ -483,6 +487,16 @@ impl Station {
         let mut pd = pd.write().await;
         pd.idle_crew.0.insert(crewid, member);
         crewid
+    }
+
+    pub async fn fire_crew(&self, id: &PlayerId, crewid: &CrewId) -> Result<CrewMember, Errcode> {
+        self.ensure_has_player_data(id).await;
+        let pd = self.player_data.clone_val(id).await.unwrap();
+        let mut pd = pd.write().await;
+        let Some(cm) = pd.idle_crew.0.remove(crewid) else {
+            return Err(Errcode::CrewMemberNotFound(*crewid));
+        };
+        Ok(cm)
     }
 
     pub async fn upgr_trader_price(&self, id: &PlayerId) -> Option<f64> {

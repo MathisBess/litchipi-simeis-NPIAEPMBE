@@ -55,6 +55,35 @@ async fn hire_crew(
     build_response(data)
 }
 
+// @summary Fire a new crew member on the station. Must be idle, or will return an error
+// @returns The ID of the fired crew member
+#[web::post("/fire/{crew_id}")]
+async fn fire_crew(
+    srv: GameState,
+    args: Path<(StationId, CrewId)>,
+    req: HttpRequest,
+) -> impl web::Responder {
+    let (station_id, crewid) = args.clone();
+    let pkey = get_player_key!(req);
+    let data = srv
+        .map_station(&pkey, &station_id, |pid, station| {
+            Box::pin(async move {
+                let cm = station.fire_crew(pid, &crewid).await?;
+                Ok(to_value(cm).unwrap())
+            })
+        })
+        .await;
+    let _ = srv
+        .map_player_mut(&pkey, |player| {
+            Box::pin(async {
+                player.update_costs().await;
+                Ok(())
+            })
+        })
+        .await;
+    build_response(data)
+}
+
 // @summary List all the upgrades available for the crew of a specific ship
 // @returns For each member, his type, rank, and price for next rank
 #[web::get("/upgrade/ship/{ship_id}")]
@@ -251,6 +280,7 @@ pub fn configure<T: IntoPattern>(base: T, srv: &mut ServiceConfig) {
     srv.service(
         scope(base)
             .service(hire_crew)
+            .service(fire_crew)
             .service(get_crew_upgrades)
             .service(upgrade_ship_crew)
             .service(upgrade_station_crew)

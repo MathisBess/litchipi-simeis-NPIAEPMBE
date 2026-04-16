@@ -43,9 +43,9 @@
                   "events": [
                     {
                       "event": {
-                        "ShipFlightFinished": 3117398384586514376
+                        "ShipFlightFinished": 9672415920091265538
                       },
-                      "timestamp": 1776160235.6837075,
+                      "timestamp": 1776325806.5971503,
                       "type": "ShipFlightFinished"
                     }
                   ],
@@ -196,7 +196,7 @@
                     "potential": 404.0,
                     "score": -445.06252313054154,
                     "stations": {
-                      "52903": {
+                      "27524": {
                         "cargo": {
                           "capacity": 1001.0,
                           "resources": {
@@ -207,23 +207,23 @@
                           "usage": 205.75
                         },
                         "crew": {
-                          "2836549214": {
-                            "member_type": "Operator",
-                            "rank": 1
-                          },
-                          "51463727": {
+                          "1014862443": {
                             "member_type": "Trader",
                             "rank": 2
+                          },
+                          "2171334395": {
+                            "member_type": "Operator",
+                            "rank": 1
                           }
                         },
-                        "id": 52903,
+                        "id": 27524,
                         "idle_crew": {},
                         "position": [
-                          250635636,
-                          2689605129,
-                          3611401889
+                          2225940144,
+                          961942117,
+                          1718287172
                         ],
-                        "trader": 51463727
+                        "trader": 1014862443
                       }
                     }
                   },
@@ -235,19 +235,19 @@
                     "potential": 0.0,
                     "score": 0.0,
                     "stations": {
-                      "52903": {
+                      "27524": {
                         "cargo": {
                           "capacity": 1000.0,
                           "resources": {},
                           "usage": 0.0
                         },
                         "crew": {},
-                        "id": 52903,
+                        "id": 27524,
                         "idle_crew": {},
                         "position": [
-                          250635636,
-                          2689605129,
-                          3611401889
+                          2225940144,
+                          961942117,
+                          1718287172
                         ],
                         "trader": null
                       }
@@ -463,7 +463,7 @@
               "application/json": {
                 "example": {
                   "error": "ok",
-                  "key": "gaGgvygMr5h8uAK1pCaAF56k3Mc8bTNysAzGHbwKV/tqVr7NQ1LiY4KABI96rvLxQMEkrw7F4DUXF5MP6kXXQfaveVJnTN2XkDDb1VUdaG62hJOnKyAFVdN3EzaNRHC+KMdUCqL7DzozD5weMZZHontSBx1HSv/bRqnhH20CGIA=",
+                  "key": "ICg73187rdIfOSQjDb0UMLyRjmUxZYwSJfvLD0lqqmI1ZLZ9pxA6hE00jmQNP8vGuMISadGw3jFOLsAFxoaPjicZCbvswlhuDM0UGyb7fdb+vHv1VME7fJYn/vqG4e903IjKRLkVnDrYQt5s/M1MdKVv96xPqCI0TRQGSVeAmiM=",
                   "playerId": 7104837252786233073
                 }
               }
@@ -500,35 +500,35 @@
                     "usage": 99.0
                   },
                   "crew": {
-                    "4291297220": {
-                      "member_type": "Pilot",
+                    "3336414799": {
+                      "member_type": "Operator",
                       "rank": 1
                     },
-                    "744370163": {
-                      "member_type": "Operator",
+                    "3679256511": {
+                      "member_type": "Pilot",
                       "rank": 1
                     }
                   },
                   "error": "ok",
-                  "fuel_tank": 997.2024594802069,
+                  "fuel_tank": 997.2027621624388,
                   "fuel_tank_capacity": 1000.0,
-                  "hull_decay": 49.95608071096094,
+                  "hull_decay": 49.950675671106225,
                   "hull_resistance": 3000.0,
-                  "id": 3117398384586514376,
+                  "id": 9672415920091265538,
                   "modules": {
                     "1": {
                       "modtype": "GasSucker",
-                      "operator": 744370163,
+                      "operator": 3336414799,
                       "rank": 1,
                       "totalcost": 0.0
                     }
                   },
                   "owner": 1809641971439093430,
-                  "pilot": 4291297220,
+                  "pilot": 3679256511,
                   "position": [
-                    250635636,
-                    2689605129,
-                    3611401889
+                    2225940144,
+                    961942117,
+                    1718287172
                   ],
                   "reactor_power": 2,
                   "shield_power": 0,
@@ -595,15 +595,15 @@
               "application/json": {
                 "example": {
                   "direction": [
-                    -0.8687631091619628,
-                    0.27424088929767027,
-                    0.4123622131045261
+                    0.08208097177695765,
+                    0.2982942632869925,
+                    -0.9509380876598753
                   ],
-                  "distance": 499.56080710960504,
-                  "duration": 4.995608071096051,
+                  "distance": 499.5067567110579,
+                  "duration": 4.995067567110579,
                   "error": "ok",
-                  "fuel_consumption": 1.3987702599068943,
-                  "hull_usage": 24.978040355480253
+                  "fuel_consumption": 1.3986189187909621,
+                  "hull_usage": 24.975337835552896
                 }
               }
             }
@@ -647,15 +647,15 @@
               "application/json": {
                 "example": {
                   "direction": [
-                    0.8687631091619628,
-                    -0.27424088929767027,
-                    -0.4123622131045261
+                    -0.08208097177695765,
+                    -0.2982942632869925,
+                    0.9509380876598753
                   ],
-                  "distance": 499.56080710960504,
-                  "duration": 4.995608071096051,
+                  "distance": 499.5067567110579,
+                  "duration": 4.995067567110579,
                   "error": "ok",
-                  "fuel_consumption": 1.3987702599068943,
-                  "hull_usage": 24.978040355480253
+                  "fuel_consumption": 1.3986189187909621,
+                  "hull_usage": 24.975337835552896
                 }
               }
             }
@@ -700,9 +700,9 @@
                 "example": {
                   "error": "ok",
                   "position": [
-                    250635636,
-                    2689605129,
-                    3611401889
+                    2225940144,
+                    961942117,
+                    1718287172
                   ]
                 }
               }
@@ -879,12 +879,12 @@
                   },
                   "crew": {},
                   "error": "ok",
-                  "id": 52903,
+                  "id": 27524,
                   "idle_crew": {},
                   "position": [
-                    250635636,
-                    2689605129,
-                    3611401889
+                    2225940144,
+                    961942117,
+                    1718287172
                   ],
                   "trader": null
                 }
@@ -948,39 +948,39 @@
                   "planets": [
                     {
                       "position": [
-                        250635202,
-                        2689605266,
-                        3611402095
+                        2225940185,
+                        961942266,
+                        1718286697
                       ],
                       "solid": false,
-                      "temperature": 19658
+                      "temperature": 40099
                     },
                     {
                       "position": [
-                        250636013,
-                        2689607147,
-                        3611402528
+                        2225940443,
+                        961944751,
+                        1718285656
                       ],
                       "solid": false,
-                      "temperature": 9313
+                      "temperature": 46421
                     },
                     {
                       "position": [
-                        250639651,
-                        2689606936,
-                        3611402731
+                        2225942291,
+                        961944669,
+                        1718289705
                       ],
-                      "solid": false,
-                      "temperature": 26073
+                      "solid": true,
+                      "temperature": 40487
                     }
                   ],
                   "stations": [
                     {
-                      "id": 52903,
+                      "id": 27524,
                       "position": [
-                        250635636,
-                        2689605129,
-                        3611401889
+                        2225940144,
+                        961942117,
+                        1718287172
                       ]
                     }
                   ]
@@ -1011,7 +1011,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "added-fuel": 2.797540519793074,
+                  "added-fuel": 2.7972378375611697,
                   "error": "ok"
                 }
               }
@@ -1045,7 +1045,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "added-hull": 49.95608071096094,
+                  "added-hull": 49.950675671106225,
                   "error": "ok"
                 }
               }
@@ -1085,7 +1085,7 @@
                       "cargo_capacity": 200.0,
                       "fuel_tank_capacity": 1000.0,
                       "hull_resistance": 3000.0,
-                      "id": 3117398384586514376,
+                      "id": 9672415920091265538,
                       "modules": {},
                       "price": 65000.0,
                       "reactor_power": 1
@@ -1094,7 +1094,7 @@
                       "cargo_capacity": 400.0,
                       "fuel_tank_capacity": 2000.0,
                       "hull_resistance": 6000.0,
-                      "id": 7549029401437259560,
+                      "id": 13542268084090455426,
                       "modules": {},
                       "price": 134000.0,
                       "reactor_power": 3
@@ -1103,7 +1103,7 @@
                       "cargo_capacity": 1200.0,
                       "fuel_tank_capacity": 4000.0,
                       "hull_resistance": 20000.0,
-                      "id": 3821209863390545889,
+                      "id": 7672050109002783761,
                       "modules": {},
                       "price": 364000.0,
                       "reactor_power": 10
@@ -1182,7 +1182,7 @@
               "application/json": {
                 "example": {
                   "error": "ok",
-                  "id": 3117398384586514376
+                  "id": 9672415920091265538
                 }
               }
             }
@@ -1254,14 +1254,14 @@
             "content": {
               "application/json": {
                 "example": {
-                  "4291297220": {
-                    "member-type": "Pilot",
-                    "price": 43703.70833044504,
-                    "rank": 2
-                  },
-                  "744370163": {
+                  "3336414799": {
                     "member-type": "Operator",
                     "price": 1148.4466146364105,
+                    "rank": 2
+                  },
+                  "3679256511": {
+                    "member-type": "Pilot",
+                    "price": 43703.70833044504,
                     "rank": 2
                   },
                   "error": "ok"
@@ -1298,7 +1298,7 @@
               "application/json": {
                 "example": {
                   "error": "ok",
-                  "id": 744370163
+                  "id": 3336414799
                 }
               }
             }
@@ -1320,6 +1320,41 @@
           }
         ],
         "summary": "Hire a new crew member on the station. Unless assigned, it will stay idle"
+      }
+    },
+    "/station/{station_id}/crew/fire/{crew_id}": {
+      "post": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "The ID of the fired crew member",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "ok",
+                  "member_type": "Trader",
+                  "rank": 1
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "crew"
+        ],
+        "parameters": [
+          {
+            "name": "station_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "crew_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "summary": "Fire a new crew member on the station. Must be idle, or will return an error"
       }
     },
     "/station/{station_id}/crew/upgrade/ship/{ship_id}/{crew_id}": {
@@ -1836,7 +1871,7 @@
                 "example": {
                   "cost": 8000.0,
                   "error": "ok",
-                  "id": 2802097789
+                  "id": 2965805596
                 }
               }
             }
