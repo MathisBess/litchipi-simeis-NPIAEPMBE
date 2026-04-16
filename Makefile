@@ -1,4 +1,4 @@
-export RUSTFLAGS="-C code-model=kernel -C codegen-units=1"
+export RUSTFLAGS=-C code-model=kernel -C codegen-units=1
 
 .PHONY: all build doc check test clean
 
