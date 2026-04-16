@@ -4,9 +4,6 @@ on:
   schedule:
     - cron: '0 * * * *'
   workflow_dispatch:
-  push:
-    branches:
-      - test-ci-nathan
 
 permissions:
   contents: write
@@ -40,6 +37,6 @@ jobs:
             git commit -m "Update dependencies"
             git push -f origin $BRANCH
             
-            # On cree la PR, si elle existe deja gh va afficher une erreur et continuer (grace a || true)
-            gh pr create --title "Update dependances" --body "Mise a jour auto" --label "bot/update" --base main --head $BRANCH || true
+            # On cree la PR
+            gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head $BRANCH
           fi
