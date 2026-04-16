@@ -1,0 +1,17 @@
+# Fichier CODEOWNERS pour attribuer la responsabilité du code
+
+# Règles générales : les leads ou main devs sont reviewers par défaut
+* @nat-pvt
+
+# Partie Serveur
+/simeis-server/ @BackendLead
+
+# Partie Data / Bibliothèque métier
+/simeis-data/ @DataLead
+
+# Documentation
+/doc/ @DocWriter
+
+# Partie Client/SDK
+/example/ @nat-pvt
+/sdk/ @nat-pvt
