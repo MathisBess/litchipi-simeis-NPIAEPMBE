@@ -2,7 +2,7 @@ name: DIY Dependabot
 
 on:
   schedule:
-    - cron: '40 12 * * *'
+    - cron: '50 12 * * *'
   workflow_dispatch:
   push:
     branches:
