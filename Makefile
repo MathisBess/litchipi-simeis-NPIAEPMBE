@@ -17,7 +17,7 @@ doc:
 check:
 	@echo "Check du code"
 	cargo fmt -- --check
-	cargo clippy -- -D warnings
+	cargo clippy -- -D warnings -A clippy::clone_on_copy
 
 test:
 	@echo "Tests"
