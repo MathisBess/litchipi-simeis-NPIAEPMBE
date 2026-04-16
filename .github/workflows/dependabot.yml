@@ -4,6 +4,9 @@ on:
   schedule:
     - cron: '35 12 * * *'
   workflow_dispatch:
+  push:
+    branches:
+      - test-ci-nathan
 
 permissions:
   contents: write
