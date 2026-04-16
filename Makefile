@@ -6,7 +6,7 @@ all: build
 
 build:
 	@echo "Build du projet"
-	cargo build --release
+	cargo build --release --verbose
 	@echo "Strip du binaire"
 	strip target/release/simeis-server
 
