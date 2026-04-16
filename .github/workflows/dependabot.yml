@@ -1,28 +1,42 @@
-name: Dependabot
+name: DIY Dependabot
 
 on:
   schedule:
     - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  update:
+  update-deps:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - run: cargo update
+      - name: Install cargo-update
+        run: cargo install cargo-update
 
-      - env:
+      - name: Update dependencies
+        run: cargo update
+
+      - name: Create Pull Request with gh
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "bot"
           git config user.email "bot@github.com"
           
-          git checkout -b bot/update
+          BRANCH="bot/update"
+          git checkout -b $BRANCH
           git add Cargo.lock
-          git commit -m "Update dependencies" || true
-          git push -f origin bot/update
           
-          gh pr create --title "Update deps" --body "Mise a jour" --label "bot/update" --base main --head bot/update || true
+          # Si il y a des changements on commit et on push
+          if ! git diff --staged --quiet; then
+            git commit -m "Update dependencies"
+            git push -f origin $BRANCH
+            
+            # On cree la PR, si elle existe deja gh va afficher une erreur et continuer (grace a || true)
+            gh pr create --title "Update dependances" --body "Mise a jour auto" --label "bot/update" --base main --head $BRANCH || true
+          fi
