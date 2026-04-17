@@ -37,6 +37,8 @@ jobs:
             git commit -m "Update dependencies"
             git push -f origin $BRANCH
             
-            # On cree la PR
-            gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head $BRANCH
+            # On cree la PR seulement si elle n existe pas deja
+            if ! gh pr view $BRANCH > /dev/null 2>&1; then
+              gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head $BRANCH
+            fi
           fi
