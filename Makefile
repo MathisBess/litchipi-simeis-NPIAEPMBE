@@ -23,6 +23,12 @@ test:
 	@echo "Tests"
 	cargo test
 
+audit:
+	@echo "Installation de cargo-audit"
+	cargo install cargo-audit
+	@echo "Lancement de l'audit"
+	cargo audit
+
 clean:
 	@echo "Clean"
 	cargo clean
