@@ -22,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           FAILURE=0
-          grep -rn "TODO" . --exclude-dir={.git,.github} | while IFS=':' read -r file line_number content; do
+          while IFS=':' read -r file line_number content; do
             echo "Vérification de: $file:$line_number"
             
             issue_number=$(echo "$content" | sed -n 's/.*TODO.*(#\([0-9]\+\)).*/\1/p')
@@ -30,14 +30,15 @@ jobs:
             if [ -z "$issue_number" ]; then
               echo "::error file=$file,line=$line_number::Ce TODO n'est associé à aucune issue. Format attendu : // TODO (#123)"
               FAILURE=1
-            elif ! issue_state=$(gh issue view "$issue_number" --json state --jq .state 2>/dev/null); then
+            elif ! issue_state=$(gh issue view "$issue_number" --json state --jq .state 2>/dev/null); then # Le 2>/dev/null cache l'erreur de gh si l'issue n'existe pas
               echo "::error file=$file,line=$line_number::L'issue #${issue_number} n'existe pas ou est inaccessible."
               FAILURE=1
             elif [ "$issue_state" != "OPEN" ]; then
               echo "::error file=$file,line=$line_number::L'issue #${issue_number} est '${issue_state}'. Un TODO doit être lié à une issue OUVERTE (OPEN)."
               FAILURE=1
             fi
-          done
+          # Le `|| true` à la fin de grep évite que le script échoue si aucun TODO n'est trouvé.
+          done < <(grep -rn "TODO" . --exclude-dir={.git,.github} || true)
 
           if [ $FAILURE -eq 1 ]; then
             exit 1
