@@ -33,20 +33,19 @@ jobs:
           
           BRANCH="bot/update"
           git checkout -b $BRANCH
-          git add '**/Cargo.lock'
+          git add -u
           
           # Si il y a des changements on commit et on push
           if ! git diff --staged --quiet; then
             git commit -m "Update dependencies"
             git push -f origin $BRANCH
             
-            # S'il n'y a pas de PR ouverte, on en crée une ou on en ré-ouvre une existante.
-            if [[ -z "$(gh pr list --head "$BRANCH" --state open --limit 1)" ]]; then
-              CLOSED_PR_NUM=$(gh pr list --head "$BRANCH" --state closed --jq '.[0].number')
-              if [[ -n "$CLOSED_PR_NUM" && "$CLOSED_PR_NUM" != "null" ]]; then
-                gh pr reopen "$CLOSED_PR_NUM"
-              else
-                gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head "$BRANCH"
-              fi
+            # Vérifier si une PR est déjà ouverte
+            PR_OPEN=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
+            
+            if [[ -z "$PR_OPEN" || "$PR_OPEN" == "null" ]]; then
+              gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head "$BRANCH" || echo "⚠️ Impossible de créer la PR"
+            else
+              echo "Une PR est déjà ouverte : #$PR_OPEN"
             fi
           fi
