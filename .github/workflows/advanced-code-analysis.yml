@@ -1,0 +1,29 @@
+name: Analyse avancée du code
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - "release/**"
+
+jobs:
+  functional-test-skeleton:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Installer Rust stable
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Compiler en debug avec heavy-testing
+        run: cargo build -p simeis-server --features heavy-testing
+
+      - name: Lancer le script Python de tests fonctionnels
+        run: python3 tests/functional/run_functional_tests.py
+
+      - name: Vérifier que le script s'est bien exécuté
+        if: success()
+        run: echo "Execution du script Python OK."
