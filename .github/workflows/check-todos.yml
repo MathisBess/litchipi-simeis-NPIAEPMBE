@@ -1,0 +1,44 @@
+name: Vérification des TODOs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  verifier-todos:
+    name: Vérifier les commentaires TODO
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      issues: read
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Vérification des TODOs dans le code
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          FAILURE=0
+          grep -rn "TODO" . --exclude-dir={.git,.github} | while IFS=':' read -r file line_number content; do
+            echo "Vérification de: $file:$line_number"
+            
+            issue_number=$(echo "$content" | sed -n 's/.*TODO.*(#\([0-9]\+\)).*/\1/p')
+
+            if [ -z "$issue_number" ]; then
+              echo "::error file=$file,line=$line_number::Ce TODO n'est associé à aucune issue. Format attendu : // TODO (#123)"
+              FAILURE=1
+            elif ! issue_state=$(gh issue view "$issue_number" --json state --jq .state 2>/dev/null); then
+              echo "::error file=$file,line=$line_number::L'issue #${issue_number} n'existe pas ou est inaccessible."
+              FAILURE=1
+            elif [ "$issue_state" != "OPEN" ]; then
+              echo "::error file=$file,line=$line_number::L'issue #${issue_number} est '${issue_state}'. Un TODO doit être lié à une issue OUVERTE (OPEN)."
+              FAILURE=1
+            fi
+          done
+
+          if [ $FAILURE -eq 1 ]; then
+            exit 1
+          fi
