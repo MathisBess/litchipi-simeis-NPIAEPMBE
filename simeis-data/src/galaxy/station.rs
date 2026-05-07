@@ -33,7 +33,6 @@ pub struct StationInfo {
 }
 
 impl StationInfo {
-    // TODO (#8) Based on the scanner rank, get informations on crew and cargo
     pub fn scan(_rank: u8, station: &Station) -> StationInfo {
         StationInfo {
             id: station.id,
@@ -87,7 +86,6 @@ impl Station {
         }
     }
 
-    // TODO (#8) Allow to build improvements for the scanner
     pub async fn scan(&self, galaxy: &Galaxy) -> ScanResult {
         galaxy.scan_sector(1, &self.position).await
     }
@@ -400,8 +398,6 @@ impl Station {
     }
 
     pub fn get_ship_upgrade_price(&self, _ship: &Ship, upgrade: &ShipUpgrade) -> f64 {
-        // TODO (#9) Modify price based on station economy metrics
-        // TODO (#9) Modify price based on upgrades already installed on the ship
         upgrade.get_price()
     }
 
