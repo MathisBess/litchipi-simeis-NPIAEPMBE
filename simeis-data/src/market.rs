@@ -90,7 +90,6 @@ impl Market {
         let cost = amnt * *price;
         let fees = cost * fee_rate;
 
-        // TODO (#15) Fixup influence on market price
         // let price_inc_max = (cost / PRICE_INC_CAP).max(1.0) * PRICE_INC_RANGE_MAX;
         // let price_inc_min = (cost / PRICE_INC_CAP).max(1.0) * PRICE_INC_RANGE_MIN;
         // let mut rng = rand::rng();
@@ -115,7 +114,6 @@ impl Market {
         let cost = amnt * *price;
         let fees = cost * fee_rate;
 
-        // TODO (#15) Fixup influence on market price
         // let price_dec_max = (cost / PRICE_INC_CAP).max(1.0) * PRICE_INC_RANGE_MAX;
         // let price_dec_min = (cost / PRICE_INC_CAP).max(1.0) * PRICE_INC_RANGE_MIN;
         // let mut rng = rand::rng();
