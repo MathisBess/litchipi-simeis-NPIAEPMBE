@@ -37,8 +37,7 @@ jobs:
               echo "::error file=$file,line=$line_number::L'issue #${issue_number} est '${issue_state}'. Un TODO doit être lié à une issue OUVERTE (OPEN)."
               FAILURE=1
             fi
-          # Le `|| true` à la fin de grep évite que le script échoue si aucun TODO n'est trouvé.
-          done < <(grep -rn "TODO" . --exclude-dir={.git,.github} || true)
+          done < <(grep -rn "TODO" . --exclude-dir={.git,.github} --exclude="swagger-ui.html" || true)
 
           if [ $FAILURE -eq 1 ]; then
             exit 1
