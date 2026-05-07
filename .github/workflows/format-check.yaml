@@ -3,6 +3,8 @@ name: Vérification du formatage Python
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+      - '**' 
 
 jobs:
   check-format:
@@ -10,18 +12,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du code
+      - name: Récupération du code
         uses: actions/checkout@v4
 
-      - name: Configuration de Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11" 
-
       - name: Installation de Ruff
-        run: pip install ruff
-
-      - name: Vérification du code avec Ruff
         run: |
-          ruff format --check tests/
-          ruff check --output-format=github tests/
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ruff
+
+      - name: Exécution de Ruff sur le dossier example/python
+        run: |
+          ruff format --check example/python/
+          
+          ruff check --output-format=github example/python/
