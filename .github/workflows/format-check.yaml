@@ -1,0 +1,27 @@
+name: Vérification du formatage Python
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-format:
+    name: Lint et Format avec Ruff
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11" 
+
+      - name: Installation de Ruff
+        run: pip install ruff
+
+      - name: Vérification du code avec Ruff
+        run: |
+          ruff format --check tests/
+          ruff check --output-format=github tests/
