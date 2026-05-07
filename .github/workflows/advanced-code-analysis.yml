@@ -21,6 +21,21 @@ jobs:
       - name: Compiler en debug avec heavy-testing
         run: cargo build -p simeis-server --features heavy-testing
 
+      - name: Installer cargo-audit
+        run: cargo install cargo-audit --locked
+
+      - name: Auditer les dependances avec cargo-audit
+        run: cargo audit
+
+      - name: Installer nightly + rust-src pour cargo-udeps
+        run: rustup toolchain install nightly --profile minimal --component rust-src
+
+      - name: Installer cargo-udeps
+        run: cargo +nightly install cargo-udeps --locked
+
+      - name: Verifier les dependances inutiles avec cargo-udeps
+        run: cargo +nightly udeps --workspace --all-targets
+
       - name: Lancer le script Python de tests fonctionnels
         run: python3 tests/functional/run_functional_tests.py
 
