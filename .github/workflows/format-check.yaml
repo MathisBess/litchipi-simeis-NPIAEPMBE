@@ -3,6 +3,8 @@ name: Vérification du formatage Python
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+      - '**' 
 
 jobs:
   check-format:
@@ -10,18 +12,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout du code
+      - name: Récupération du code
         uses: actions/checkout@v4
 
-      - name: Configuration de Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11" 
-
       - name: Installation de Ruff
-        run: pip install ruff
-
-      - name: Vérification du code avec Ruff
         run: |
+          # Mise à jour de pip (bonne pratique) puis installation de Ruff
+          python3 -m pip install --upgrade pip
+          python3 -m pip install ruff
+
+      - name: Exécution de Ruff sur le dossier tests
+        run: |
+          # 1. Vérifie si le code respecte le format standard.
+          # L'option --check fait échouer l'étape (exit 1) si un fichier n'est pas bien formaté.
           ruff format --check tests/
+          
+          # 2. Analyse le code pour détecter des erreurs de qualité (linting).
+          # L'option --output-format=github permet de créer des annotations propres sur la PR.
           ruff check --output-format=github tests/
