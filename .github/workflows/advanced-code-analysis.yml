@@ -21,6 +21,9 @@ jobs:
       - name: Compiler en debug avec heavy-testing
         run: cargo build -p simeis-server --features heavy-testing
 
+      - name: Lancer les tests unitaires avec heavy-testing
+        run: cargo test -p simeis-server --features heavy-testing
+
       - name: Installer cargo-audit
         run: cargo install cargo-audit --locked
 
