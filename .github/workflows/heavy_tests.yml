@@ -1,0 +1,43 @@
+name: Tests Fonctionnels Lourds
+
+on:
+  release:
+    types: [prereleased, published]
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  functional-tests:
+    name: Lancer les tests fonctionnels 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installation des dépendances Python
+        run: |
+          sudo apt-get update && sudo apt-get install -y python3-requests
+
+      - name: Compilation du serveur Simeis
+        run: cargo build --release
+
+      - name: Lancement du serveur en arrière-plan
+        run: |
+          cargo run --release &
+          
+          sleep 5
+
+      - name: Exécution des tests fonctionnels
+        run: |
+          python3 tests/functional_tests.py 127.0.0.1 8080
+
+  property-tests-heavy:
+    name: Tests Property-Based Lourds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Exécution Property-Based Testing (Lourds - facteur 10)
+        run: python3 tests/propertybased.py 10

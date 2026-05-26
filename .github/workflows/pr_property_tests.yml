@@ -1,0 +1,21 @@
+name: Tests Property-Based PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  property-based:
+    name: Tests Rapides Property-Based
+    runs-on: ubuntu-latest
+    
+    concurrency:
+      group: property-tests-${{ github.ref }}
+      cancel-in-progress: true
+      
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Exécution des tests Property-Based (Normaux - facteur 1)
+        run: python3 tests/propertybased.py 1

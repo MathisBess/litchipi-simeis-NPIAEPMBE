@@ -1,0 +1,54 @@
+name: Code Coverage
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  coverage:
+    name: Vérifier le Code Coverage
+    runs-on: ubuntu-latest
+    
+    permissions:
+      pull-requests: write
+      issues: write
+      
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Rust
+        run: rustup default stable
+
+      - name: Installation de cargo-tarpaulin
+        run: |
+          curl -sL https://github.com/xd009642/tarpaulin/releases/latest/download/cargo-tarpaulin-x86_64-unknown-linux-musl.tar.gz | tar xz
+          sudo mv cargo-tarpaulin /usr/local/bin/
+
+      - name: Lancement des tests avec Tarpaulin
+        id: tarpaulin
+        run: |
+          cargo tarpaulin 2>&1 | tee coverage.txt
+          
+          COVERAGE=$(grep -oP '\d+\.\d+(?=% coverage)' coverage.txt | tail -n 1)
+          
+          COV_INT=$(echo $COVERAGE | awk '{print int($1)}')
+          if [ -z "$COV_INT" ]; then COV_INT=0; fi
+          
+          echo "COV_INT=$COV_INT" >> $GITHUB_ENV
+
+      - name: Analyse du résultat et ajout du label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          echo "La couverture de code est de ${COV_INT}%"
+          
+          if [ "$COV_INT" -lt 50 ]; then
+            echo "Couverture insuffisante"
+            gh label create "not enough tests" --color "B60205" --description "Le coverage est inférieur à 50%" || true
+            gh pr edit $PR_NUMBER --add-label "not enough tests"
+          else
+            echo "Couverture au-dessus de 50%"
+            gh pr edit $PR_NUMBER --remove-label "not enough tests" || true
+          fi
