@@ -1,0 +1,54 @@
+name: Propagation des changements
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  preparer-branches:
+    name: Lister les branches cibles
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'bug/') 
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.recuperer-labels.outputs.branches }}
+    steps:
+      - name: Extraire les branches depuis les labels
+        id: recuperer-labels
+        run: |
+          BRANCHES=$(echo '${{ toJSON(github.event.pull_request.labels) }}' | jq -c '[.[].name | select(startswith("propagate:")) | sub("^propagate:"; "")]')
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+
+  creer-pr:
+    name: Créer une PR vers ${{ matrix.branche }}
+    needs: preparer-branches
+    if: needs.preparer-branches.outputs.branches != '[]' && needs.preparer-branches.outputs.branches != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    strategy:
+      matrix:
+        branche: ${{ fromJSON(needs.preparer-branches.outputs.branches) }}
+      fail-fast: false
+    steps:
+      - name: Récupérer le code de la branche cible
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branche }}
+          fetch-depth: 0
+
+      - name: Copier les modifications
+        run: |
+          git fetch origin ${{ github.event.pull_request.merge_commit_sha }}
+          # Apporte les fichiers modifiés par la PR sans valider le commit tout de suite (-n)
+          git cherry-pick -n -m 1 ${{ github.event.pull_request.merge_commit_sha }} || git cherry-pick -n ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Créer la nouvelle Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: auto-propagate/${{ matrix.branche }}-pr-${{ github.event.pull_request.number }}
+          base: ${{ matrix.branche }}
+          title: "Propagation du fix #${{ github.event.pull_request.number }} vers ${{ matrix.branche }}"
+          body: "Création automatique de la Pull Request suite à la correction de bug de la branche `${{ github.event.pull_request.head.ref }}`."
+          commit-message: "Propagation automatique depuis la PR #${{ github.event.pull_request.number }}"

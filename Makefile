@@ -15,8 +15,11 @@ doc:
 	typst compile doc/manual.typ doc/manual.pdf
 
 check:
-	@echo "Check du code"
+	@echo "Vérifier le formatage"
 	cargo fmt -- --check
+	@echo "Vérifier la compilation"
+	cargo check
+	@echo "Linter le code"
 	cargo clippy -- -D warnings -A clippy::clone_on_copy
 
 test:

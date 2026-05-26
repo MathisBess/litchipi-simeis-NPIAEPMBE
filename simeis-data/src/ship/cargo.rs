@@ -22,7 +22,6 @@ impl ShipCargo {
 
     pub fn slowing_ratio(&self) -> f64 {
         // let usage_ratio = self.usage / self.capacity;
-        // TODO (#11)    Cargo slows down speed of ship
         0.0
     }
 
