@@ -25,14 +25,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-      - name: Lancement du serveur Simeis en arrière-plan
+      - name: Compilation du serveur Simeis
+        run: cargo build --release
+
+      - name: Lancement du serveur en arrière-plan
         run: |
-          # Lance le serveur (Rust) en mode release pour pouvoir tester l'API localement
-          # Le '&' permet de le lancer en arrière-plan pendant que la CI continue
           cargo run --release &
           
-          # On attend 15 secondes pour s'assurer que le serveur a bien démarré
-          sleep 15
+          sleep 5
 
       - name: Exécution des tests fonctionnels
         run: |
