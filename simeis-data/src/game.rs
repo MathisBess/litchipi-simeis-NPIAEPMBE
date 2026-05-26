@@ -38,9 +38,6 @@ const ITER_PERIOD: Duration = Duration::from_millis(20);
 #[cfg(feature = "extraspeed")]
 const ITER_PERIOD: Duration = Duration::from_micros(20);
 
-// TODO (#9) Have a global "inflation" rate for all users, that increases over time
-//     Equipment becomes more and more expansive
-
 pub enum GameSignal {
     Stop,
     Tick,
