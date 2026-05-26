@@ -3,6 +3,8 @@ name: Tests Fonctionnels Lourds
 on:
   release:
     types: [prereleased, published]
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
