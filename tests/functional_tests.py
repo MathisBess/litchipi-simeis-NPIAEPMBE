@@ -2,6 +2,8 @@ import sys
 import time
 import uuid
 import requests
+import subprocess
+import urllib.request
 
 
 class TestAPI:
@@ -163,6 +165,20 @@ def run_scenario_3_travel(ip, port):
     print("Scénario 3 OK !\n")
 
 
+def wait_for_server(ip, port):
+    url = f"http://{ip}:{port}/ping"
+    print(f"Attente du serveur sur {url}...")
+    for _ in range(30):
+        try:
+            res = urllib.request.urlopen(url)
+            if res.status == 200:
+                return True
+        except Exception:
+            pass
+        time.sleep(1)
+    return False
+
+
 if __name__ == "__main__":
     ip_addr = "127.0.0.1"
     port_num = 8080
@@ -170,16 +186,27 @@ if __name__ == "__main__":
     if len(sys.argv) >= 3:
         ip_addr = sys.argv[1]
         port_num = int(sys.argv[2])
+
+    print("Démarrage du serveur simeis-server en arrière-plan...")
+    server_process = subprocess.Popen(["cargo", "run", "-p", "simeis-server", "--features", "heavy-testing"])
+    
+    if not wait_for_server(ip_addr, port_num):
+        print("Erreur : Le serveur n'a pas démarré à temps.")
+        server_process.terminate()
+        sys.exit(1)
         
     try:
         run_scenario_1_economy(ip_addr, port_num)
         run_scenario_2_crew(ip_addr, port_num)
         run_scenario_3_travel(ip_addr, port_num)
         print("Tous les tests fonctionnels sont passés avec succès !")
-        sys.exit(0)
     except AssertionError as err:
         print(f"Échec d'une assertion : {err}")
         sys.exit(1)
     except Exception as err:
         print(f"Erreur inattendue : {err}")
         sys.exit(1)
+    finally:
+        print("Arrêt du serveur...")
+        server_process.terminate()
+        server_process.wait()
