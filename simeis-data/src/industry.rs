@@ -13,7 +13,6 @@ pub type IndustryUnitId = u32;
 
 const UNIT_UPG_POWF_DIV: f64 = 75.0;
 
-// TODO (#12) Get from configuration file
 const SBASE_REQ: f64 = 1.5;
 const ABASE_REQ: f64 = 7.5;
 
@@ -80,7 +79,6 @@ impl IndustryUnitType {
     }
 
     #[inline]
-    // TODO (#9) Move price based on inflation rate of the station
     pub fn get_price_buy(&self) -> f64 {
         match self {
             IndustryUnitType::SimpleHullFoundry | IndustryUnitType::SimpleFuelRefinery => 8000.0,
