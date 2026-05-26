@@ -39,8 +39,13 @@ jobs:
       - name: Verifier les dependances inutiles avec cargo-udeps
         run: cargo +nightly udeps --workspace --all-targets
 
+      - name: Lancer les tests property-based (Version lourde - 60 secondes)
+        run: python3 tests/propertybased.py 60
+
       - name: Lancer le script Python de tests fonctionnels
-        run: python3 tests/functional/run_functional_tests.py
+        run: |
+          pip3 install requests
+          python3 tests/functional_tests.py
 
       - name: Vérifier que le script s'est bien exécuté
         if: success()
