@@ -28,7 +28,7 @@ test:
 
 audit:
 	@echo "Installation de cargo-audit"
-	cargo install cargo-audit
+	@command -v cargo-audit >/dev/null || cargo install cargo-audit
 	@echo "Lancement de l'audit"
 	cargo audit
 
