@@ -1,0 +1,40 @@
+name: Matrice de build
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    if: startsWith(github.head_ref, 'feature/')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        rust: ['1.75.0', '1.80.0', '1.85.0', '1.88.0']
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-matrix-${{ matrix.rust }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-matrix-${{ matrix.rust }}-
+            ${{ runner.os }}-cargo-matrix-
+
+      - name: Installer Rust ${{ matrix.rust }}
+        run: |
+          rustup toolchain install ${{ matrix.rust }} --profile minimal
+          rustup default ${{ matrix.rust }}
+
+      - name: Compilation de Simeis
+        run: cargo build --release
