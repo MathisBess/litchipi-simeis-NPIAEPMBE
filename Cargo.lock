@@ -207,21 +207,21 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "compio"
-version = "0.19.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a25ca13ca7580b0cfe1982166432ee8f60a00bff6a3bf781800fce581bb97cd"
+checksum = "9b84ee96a86948d04388f3a0b8c36b9f0a6b40b3528ac0d65737e53632fb37fe"
 dependencies = [
  "compio-buf",
- "compio-driver 0.12.2",
- "compio-log 0.2.0",
- "compio-runtime 0.12.0",
+ "compio-driver",
+ "compio-log",
+ "compio-runtime",
 ]
 
 [[package]]
 name = "compio-buf"
-version = "0.8.2"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b9478803aae4726ce02139b5510354034ae3afc99ce2496734784314664b91c"
+checksum = "b51a2c35873865376ed4cdb6cfeb602b6cf569815f017ddd7bd8f86ad49b34c7"
 dependencies = [
  "arrayvec",
  "bytes",
@@ -237,7 +237,7 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "compio-buf",
- "compio-log 0.1.0",
+ "compio-log",
  "crossbeam-queue",
  "flume",
  "futures-util",
@@ -250,52 +250,10 @@ dependencies = [
  "polling",
  "slab",
  "smallvec",
- "socket2",
+ "socket2 0.6.4",
  "synchrony",
- "thin-cell 0.1.2",
+ "thin-cell",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "compio-driver"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e5b3d2a85a012970cd7c879412a388b1fb70e152286da98f35c355c47f0434c"
-dependencies = [
- "bitflags",
- "cfg_aliases",
- "compio-buf",
- "compio-log 0.2.0",
- "compio-send-wrapper",
- "crossbeam-queue",
- "flume",
- "futures-util",
- "io-uring",
- "libc",
- "linux-raw-sys",
- "mod_use",
- "once_cell",
- "pastey",
- "polling",
- "rustix",
- "smallvec",
- "socket2",
- "synchrony",
- "thin-cell 0.2.1",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "compio-executor"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43a8134ddbf3d1ae400ba29fbb19f26e7da58784d4b049b370cef8230ae015a9"
-dependencies = [
- "compio-log 0.2.0",
- "compio-send-wrapper",
- "crossbeam-queue",
- "loom",
- "slotmap",
 ]
 
 [[package]]
@@ -320,15 +278,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "compio-log"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef39fff6341af7ab6c27fae9a3887e1ec618320d43f3b9c924c7a644f693a859"
-dependencies = [
- "tracing",
-]
-
-[[package]]
 name = "compio-net"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -336,13 +285,13 @@ checksum = "becd7d40522c885113752a3640cba9f9d347f205b646bb3f8ff3967173a228f2"
 dependencies = [
  "cfg-if",
  "compio-buf",
- "compio-driver 0.11.4",
+ "compio-driver",
  "compio-io",
- "compio-runtime 0.11.0",
+ "compio-runtime",
  "either",
  "libc",
  "once_cell",
- "socket2",
+ "socket2 0.6.4",
  "widestring",
  "windows-sys 0.61.2",
 ]
@@ -356,8 +305,8 @@ dependencies = [
  "async-task",
  "cfg-if",
  "compio-buf",
- "compio-driver 0.11.4",
- "compio-log 0.1.0",
+ "compio-driver",
+ "compio-log",
  "core_affinity",
  "crossbeam-queue",
  "futures-util",
@@ -366,38 +315,8 @@ dependencies = [
  "pin-project-lite",
  "scoped-tls",
  "slab",
- "socket2",
+ "socket2 0.6.4",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "compio-runtime"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7788d06de0a16b81025ffb9241bd54a8bf4583d67bc332151b512ae7d8896d04"
-dependencies = [
- "compio-buf",
- "compio-driver 0.12.2",
- "compio-executor",
- "compio-log 0.2.0",
- "compio-send-wrapper",
- "core_affinity",
- "futures-util",
- "libc",
- "pin-project-lite",
- "scoped-tls",
- "synchrony",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "compio-send-wrapper"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4f1ef3947d751725afe49ab18ce447d819cd8f4ea9b58ae94b8498eb8ad1f864"
-dependencies = [
- "cfg-if",
- "loom",
 ]
 
 [[package]]
@@ -879,12 +798,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
 
 [[package]]
-name = "local-event"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76dda8459b10a8960dfae91c1c77316fc15e7caf94f9f18794126512a8dc77e5"
-
-[[package]]
 name = "lock_api"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -909,8 +822,6 @@ dependencies = [
  "generator",
  "pin-utils",
  "scoped-tls",
- "serde",
- "serde_json",
  "tracing",
  "tracing-subscriber",
 ]
@@ -967,12 +878,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mod_use"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21909324aa58f5c284d91cac514c6d081210901dc372d7c8ea6a9d7e0406097a"
-
-[[package]]
 name = "nanorand"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -992,9 +897,9 @@ dependencies = [
 
 [[package]]
 name = "ntex"
-version = "3.9.8"
+version = "3.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c2017bc5485001ac6952b27b3a54472cdf8f88014646b1b3df369dbd46d4bc6"
+checksum = "eba36d1c6185fc8ca654ef62cfb69fe2999478bef44a4a280f6cf967dcee8ce3"
 dependencies = [
  "base64",
  "bitflags",
@@ -1168,10 +1073,10 @@ dependencies = [
  "bitflags",
  "cfg-if",
  "compio-buf",
- "compio-driver 0.11.4",
+ "compio-driver",
  "compio-io",
  "compio-net",
- "compio-runtime 0.11.0",
+ "compio-runtime",
  "libc",
  "log",
  "ntex-bytes",
@@ -1185,7 +1090,7 @@ dependencies = [
  "ntex-util",
  "scoped-tls",
  "slab",
- "socket2",
+ "socket2 0.6.4",
  "thiserror",
  "tokio",
 ]
@@ -1225,8 +1130,8 @@ checksum = "45e4391bcd803ae4ed6a844127d55329d0e33cb4b18994346ab2b7c02222f3e7"
 dependencies = [
  "async-channel",
  "async-task",
- "compio-driver 0.11.4",
- "compio-runtime 0.11.0",
+ "compio-driver",
+ "compio-runtime",
  "crossbeam-channel",
  "crossbeam-queue",
  "foldhash 0.2.0",
@@ -1260,7 +1165,7 @@ dependencies = [
  "ntex-util",
  "oneshot 0.1.13",
  "signal-hook",
- "socket2",
+ "socket2 0.6.4",
  "uuid",
 ]
 
@@ -1421,12 +1326,6 @@ name = "paste"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
-
-[[package]]
-name = "pastey"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ee67f1008b1ba2321834326597b8e186293b049a023cdef258527550b9935b4"
 
 [[package]]
 name = "percent-encoding"
@@ -1775,19 +1674,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5"
 
 [[package]]
-name = "slotmap"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdd58c3c93c3d278ca835519292445cb4b0d4dc59ccfdf7ceadaab3f8aeb4038"
-dependencies = [
- "version_check",
-]
-
-[[package]]
 name = "smallvec"
 version = "1.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
+
+[[package]]
+name = "socket2"
+version = "0.5.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e22376abed350d73dd1cd119b57ffccad95b4e585a7cda43e286245ce23c0678"
+dependencies = [
+ "libc",
+ "windows-sys 0.52.0",
+]
 
 [[package]]
 name = "socket2"
@@ -1855,9 +1755,7 @@ version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "416090a4d8f6358526df5f9f65dfe28750b8b7bfd1fd8a5620f483fc4a75722c"
 dependencies = [
- "event-listener",
  "futures-util",
- "local-event",
  "loom",
 ]
 
@@ -1866,15 +1764,6 @@ name = "thin-cell"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4164c6c316ba9733b0ab021e7f9852c788a4b991b49c25820f1be48e1d41345b"
-
-[[package]]
-name = "thin-cell"
-version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9d3c47fea6e344ef1ac01be266c27945ec30ae8049c3292c897f0878de5c784"
-dependencies = [
- "synchrony",
-]
 
 [[package]]
 name = "thiserror"
@@ -1907,15 +1796,16 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.52.3"
+version = "1.40.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fc7f01b389ac15039e4dc9531aa973a135d7a4135281b12d7c1bc79fd57fffe"
+checksum = "e2b070231665d27ad9ec9b8df639893f46727666c6767db40317fbe920a5d998"
 dependencies = [
+ "backtrace",
  "libc",
  "mio",
  "pin-project-lite",
- "socket2",
- "windows-sys 0.61.2",
+ "socket2 0.5.10",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -2018,12 +1908,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "version_check"
-version = "0.9.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "wasi"
@@ -2173,11 +2057,20 @@ dependencies = [
 
 [[package]]
 name = "windows-sys"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "282be5f36a8ce781fad8c8ae18fa3f9beff57ec1b52cb3de0789201425d9a33d"
+dependencies = [
+ "windows-targets 0.52.6",
+]
+
+[[package]]
+name = "windows-sys"
 version = "0.60.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb"
 dependencies = [
- "windows-targets",
+ "windows-targets 0.53.5",
 ]
 
 [[package]]
@@ -2191,20 +2084,42 @@ dependencies = [
 
 [[package]]
 name = "windows-targets"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b724f72796e036ab90c1021d4780d4d3d648aca59e491e6b98e725b84e99973"
+dependencies = [
+ "windows_aarch64_gnullvm 0.52.6",
+ "windows_aarch64_msvc 0.52.6",
+ "windows_i686_gnu 0.52.6",
+ "windows_i686_gnullvm 0.52.6",
+ "windows_i686_msvc 0.52.6",
+ "windows_x86_64_gnu 0.52.6",
+ "windows_x86_64_gnullvm 0.52.6",
+ "windows_x86_64_msvc 0.52.6",
+]
+
+[[package]]
+name = "windows-targets"
 version = "0.53.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4945f9f551b88e0d65f3db0bc25c33b8acea4d9e41163edf90dcd0b19f9069f3"
 dependencies = [
  "windows-link",
- "windows_aarch64_gnullvm",
- "windows_aarch64_msvc",
- "windows_i686_gnu",
- "windows_i686_gnullvm",
- "windows_i686_msvc",
- "windows_x86_64_gnu",
- "windows_x86_64_gnullvm",
- "windows_x86_64_msvc",
+ "windows_aarch64_gnullvm 0.53.1",
+ "windows_aarch64_msvc 0.53.1",
+ "windows_i686_gnu 0.53.1",
+ "windows_i686_gnullvm 0.53.1",
+ "windows_i686_msvc 0.53.1",
+ "windows_x86_64_gnu 0.53.1",
+ "windows_x86_64_gnullvm 0.53.1",
+ "windows_x86_64_msvc 0.53.1",
 ]
+
+[[package]]
+name = "windows_aarch64_gnullvm"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32a4622180e7a0ec044bb555404c800bc9fd9ec262ec147edd5989ccd0c02cd3"
 
 [[package]]
 name = "windows_aarch64_gnullvm"
@@ -2214,9 +2129,21 @@ checksum = "a9d8416fa8b42f5c947f8482c43e7d89e73a173cead56d044f6a56104a6d1b53"
 
 [[package]]
 name = "windows_aarch64_msvc"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09ec2a7bb152e2252b53fa7803150007879548bc709c039df7627cabbd05d469"
+
+[[package]]
+name = "windows_aarch64_msvc"
 version = "0.53.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9d782e804c2f632e395708e99a94275910eb9100b2114651e04744e9b125006"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e9b5ad5ab802e97eb8e295ac6720e509ee4c243f69d781394014ebfe8bbfa0b"
 
 [[package]]
 name = "windows_i686_gnu"
@@ -2226,9 +2153,21 @@ checksum = "960e6da069d81e09becb0ca57a65220ddff016ff2d6af6a223cf372a506593a3"
 
 [[package]]
 name = "windows_i686_gnullvm"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0eee52d38c090b3caa76c563b86c3a4bd71ef1a819287c19d586d7334ae8ed66"
+
+[[package]]
+name = "windows_i686_gnullvm"
 version = "0.53.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa7359d10048f68ab8b09fa71c3daccfb0e9b559aed648a8f95469c27057180c"
+
+[[package]]
+name = "windows_i686_msvc"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "240948bc05c5e7c6dabba28bf89d89ffce3e303022809e73deaefe4f6ec56c66"
 
 [[package]]
 name = "windows_i686_msvc"
@@ -2238,15 +2177,33 @@ checksum = "1e7ac75179f18232fe9c285163565a57ef8d3c89254a30685b57d83a38d326c2"
 
 [[package]]
 name = "windows_x86_64_gnu"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "147a5c80aabfbf0c7d901cb5895d1de30ef2907eb21fbbab29ca94c5b08b1a78"
+
+[[package]]
+name = "windows_x86_64_gnu"
 version = "0.53.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c3842cdd74a865a8066ab39c8a7a473c0778a3f29370b5fd6b4b9aa7df4a499"
 
 [[package]]
 name = "windows_x86_64_gnullvm"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
+
+[[package]]
+name = "windows_x86_64_gnullvm"
 version = "0.53.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ffa179e2d07eee8ad8f57493436566c7cc30ac536a3379fdf008f47f6bb7ae1"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.52.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "windows_x86_64_msvc"
