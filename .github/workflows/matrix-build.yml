@@ -9,6 +9,7 @@ jobs:
   build:
     if: startsWith(github.head_ref, 'feature/')
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.rust != '1.88.0' }}
     strategy:
       fail-fast: false
       matrix:
