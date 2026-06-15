@@ -1,0 +1,35 @@
+name: Build release feature vers main
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: feature-merge-release-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  release-build:
+    name: Build release (${{ matrix.os }}, Rust ${{ matrix.rust }})
+    if: startsWith(github.head_ref, 'feature/')
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        rust: ["1.75.0", "1.80.0", "1.85.0", "1.88.0"]
+
+    steps:
+
+      - name: Checkout du code
+        uses: actions/checkout@v6
+
+      - name: Installer Rust ${{ matrix.rust }}
+        run: |
+          rustup toolchain install ${{ matrix.rust }} --profile minimal
+          rustup default ${{ matrix.rust }}
+
+      - name: Compiler simeis en release
+        run: cargo build --release
