@@ -6,7 +6,7 @@ on:
       - main
 
 concurrency:
-  group: feature-merge-release-${{ github.event.pull_request.number }}
+  group: feature-merge-release-${{ github.event.pull_request.number }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
