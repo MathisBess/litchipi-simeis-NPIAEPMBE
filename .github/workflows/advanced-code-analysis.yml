@@ -18,6 +18,20 @@ jobs:
           rustup toolchain install stable --profile minimal
           rustup default stable
 
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.cargo/bin/
+            target/
+          key: ${{ runner.os }}-cargo-analysis-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-analysis-
+            ${{ runner.os }}-cargo-
+
       - name: Compiler en debug avec heavy-testing
         run: cargo build -p simeis-server --features heavy-testing
 
@@ -25,7 +39,7 @@ jobs:
         run: cargo test -p simeis-server --features heavy-testing
 
       - name: Installer cargo-audit
-        run: cargo install cargo-audit --locked
+        run: command -v cargo-audit >/dev/null || cargo install cargo-audit --locked
 
       - name: Auditer les dependances avec cargo-audit
         run: cargo audit
@@ -34,7 +48,7 @@ jobs:
         run: rustup toolchain install nightly --profile minimal --component rust-src
 
       - name: Installer cargo-udeps
-        run: cargo +nightly install cargo-udeps --locked
+        run: command -v cargo-udeps >/dev/null || cargo +nightly install cargo-udeps --locked
 
       - name: Verifier les dependances inutiles avec cargo-udeps
         run: cargo +nightly udeps --workspace --all-targets

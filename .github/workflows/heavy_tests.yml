@@ -11,6 +11,8 @@ jobs:
   functional-tests:
     name: Lancer les tests fonctionnels 
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -18,6 +20,19 @@ jobs:
       - name: Installation des dépendances Python
         run: |
           sudo apt-get update && sudo apt-get install -y python3-requests
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-heavy-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-heavy-
+            ${{ runner.os }}-cargo-
 
       - name: Compilation du serveur Simeis
         run: cargo build --release
@@ -32,12 +47,26 @@ jobs:
         run: |
           python3 tests/functional_tests.py 127.0.0.1 8080
 
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}
+
   property-tests-heavy:
     name: Tests Property-Based Lourds
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
 
       - name: Exécution Property-Based Testing (Lourds - facteur 10)
         run: python3 tests/propertybased.py 10
+
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}

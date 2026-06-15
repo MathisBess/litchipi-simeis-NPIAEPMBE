@@ -35,8 +35,6 @@ def addition():
     y = random.randrange(0, 10000)
     z = random.randrange(0, 10000)
 
-    # Exercice:    Tester les additions
-    # Propriétés de l'addition mathématique
     assert x + y == y + x, "L'addition doit être commutative"
     assert (x + y) + z == x + (y + z), "L'addition doit être associative"
     assert x + 0 == x, "0 doit être l'élément neutre"
@@ -53,8 +51,6 @@ def distance():
     z2 = random.randrange(-100, 100)
     b = (x2, y2, z2)
 
-    # Exercice:     Tester la distance entre le point A et le point B
-    # Propriétés de la distance géométrique
     dist_ab = get_dist(a, b)
     dist_ba = get_dist(b, a)
     
