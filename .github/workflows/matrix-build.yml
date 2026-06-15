@@ -36,5 +36,9 @@ jobs:
           rustup toolchain install ${{ matrix.rust }} --profile minimal
           rustup default ${{ matrix.rust }}
 
+      - name: Adapter Cargo.lock pour Rust 1.75.0
+        if: matrix.rust == '1.75.0'
+        run: python3 -c "import os; os.path.exists('Cargo.lock') and os.remove('Cargo.lock')"
+
       - name: Compilation de Simeis
         run: cargo build --release
