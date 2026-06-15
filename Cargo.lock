@@ -1421,9 +1421,9 @@ dependencies = [
 
 [[package]]
 name = "rand_core"
-version = "0.10.1"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
+checksum = "0c8d0fd677905edcbeedbf2edb6494d676f0e98d54d5cf9bda0b061cb8fb8aba"
 
 [[package]]
 name = "rand_distr"
@@ -1659,10 +1659,12 @@ dependencies = [
  "mea",
  "ntex",
  "rand",
+ "rand_core",
  "serde",
  "serde_json",
  "simeis-data",
  "strum",
+ "thin-cell",
  "tokio",
  "urlencoding",
 ]
@@ -1761,9 +1763,9 @@ dependencies = [
 
 [[package]]
 name = "thin-cell"
-version = "0.1.2"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4164c6c316ba9733b0ab021e7f9852c788a4b991b49c25820f1be48e1d41345b"
+checksum = "34102afbfbb3b193ef5ff863e0baa5e764a64e2410c2e3cb8f6e068e1c042c3a"
 
 [[package]]
 name = "thiserror"
