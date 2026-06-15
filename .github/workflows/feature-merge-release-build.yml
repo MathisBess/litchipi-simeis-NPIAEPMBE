@@ -14,7 +14,9 @@ jobs:
     name: Build release (${{ matrix.os }}, Rust ${{ matrix.rust }})
     if: startsWith(github.head_ref, 'feature/')
     runs-on: ${{ matrix.os }}
-    
+    permissions:
+      pull-requests: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -33,3 +35,10 @@ jobs:
 
       - name: Compiler simeis en release
         run: cargo build --release
+
+      - name: Commenter la PR
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "Build validé sur ${{ matrix.os }} avec Rust ${{ matrix.rust }}."
