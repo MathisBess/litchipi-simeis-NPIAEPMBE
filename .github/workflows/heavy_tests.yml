@@ -15,7 +15,7 @@ jobs:
       actions: write
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Installation des dépendances Python
         run: |
@@ -60,7 +60,7 @@ jobs:
       actions: write
     steps:
       - name: Checkout du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Exécution Property-Based Testing (Lourds - facteur 10)
         run: python3 tests/propertybased.py 10
