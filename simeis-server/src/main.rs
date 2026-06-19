@@ -19,7 +19,7 @@ fn start_game_thread(
     sysrecv: SyslogRecv,
     data: Game,
 ) -> JoinHandle<()> {
-    log::debug!("Starting the game thread on compio runtime");
+    log::debug!("Starting the game thread on compios runtime");
     std::thread::spawn(move || {
         let rt = compio::runtime::Runtime::new().unwrap();
         rt.block_on(data.start(stop, sysrecv));
@@ -33,7 +33,7 @@ fn start_game_thread(
     sysrecv: SyslogRecv,
     data: Game,
 ) -> JoinHandle<()> {
-    log::debug!("Starting the game thread on tokio runtime");
+    log::debug!("Starting the game thread on tokios runtime");
     let rt =
         tokio::runtime::Runtime::new().expect("Unable to create new tokio runtime for game thread");
     std::thread::spawn(move || rt.block_on(data.start(stop, sysrecv)))

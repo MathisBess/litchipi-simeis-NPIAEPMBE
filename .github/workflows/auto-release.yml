@@ -144,3 +144,43 @@ jobs:
           files: |
             dist/*
           clear_attachments: true
+      
+      - name: Construire l'image Docker Simeis
+        run: docker build -t litchipi/simeis:latest -f .github/Dockerfile .
+
+      - name: Sauvegarder l'image Docker (Artefact)
+        run: docker image save -o dist/simeis_image.tar litchipi/simeis:latest
+
+      - name: Tester le lancement du conteneur
+        run: |
+          # Lancement en arrière-plan avec le port 8080 exposé
+          docker run -d --name simeis_test -p 8080:8080 litchipi/simeis:latest
+          
+          # Pause de 3 secondes pour laisser le temps au serveur Rust de démarrer
+          sleep 3
+          
+          # Test de connexion au port (remplace 8080 par le vrai port de ton app si différent)
+          curl -f http://localhost:8080 || exit 1
+          
+          # Nettoyage
+          docker stop simeis_test
+          docker rm simeis_test
+
+      - name: Envoyer l'image sur Docker Hub
+        # Utilisation du secret pour se connecter et pousser l'image
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login -u litchipi --password-stdin
+          docker push litchipi/simeis:latest
+
+      - name: Créer ou mettre à jour la release GitHub (Correction TP)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          # Utilisation de l'outil gh officiel au lieu de l'action du marketplace
+          gh release create "$TAG" dist/* \
+            --title "Release $TAG" \
+            --notes-file dist/CHANGELOG.md \
+            --target "${{ github.event.pull_request.merge_commit_sha }}"

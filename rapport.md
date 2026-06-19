@@ -32,7 +32,7 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 #### Ce qu'on a pu apprendre
 
 - Pour respecter notre consigne de ne pas utiliser d'actions tierces du marketplace, nous avons dû manipuler l'API GitHub directement en ligne de commande pour fermer des PRs, vérifier le statut des issues (pour les T0D0s) et créer des PRs de propagation de bugs.
-- Nous avons découvert des outils très puissants de l'écosystème Rust, notamment `cargo-udeps` pour traquer les dépendances orphelines (qui nécessite souvent la version *nightly* de Rust) et `cargo-clippy` pour imposer de bonnes pratiques.
+- Nous avons découvert des outils très puissants de l'écosystème Rust, notamment `cargo-udeps` pour traquer les dépendances orphelines et `cargo-clippy` pour imposer de bonnes pratiques.
 
 #### Amélioration à creuser
 
@@ -56,3 +56,19 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 
 - L'exécution de la version lourde du property-based testing  allonge logiquement le temps de la CI. Il serait intéressant de paralléliser ces exécutions mathématiques sur plusieurs runners.
 - Générer des rapports visuels (HTML ou XML) pour le Code Coverage et les tests fonctionnels, afin de les lier à la CI sous forme d'Artifacts pour une consultation plus agréable que la lecture des logs bruts.
+
+### TP4 - Optimisations
+#### Les ajouts
+- Implémentation d'un système de cache sur les workflows. L'objectif de cet ajout est de réduire au maximum le temps d'exécution des différentes étapes pour qu'elles ne durent pas plus de 10 à 30 secondes chacune.
+- Parallélisation maximale des jobs au sein du workflow.
+- Mise en place d'un mécanisme d'arrêt d'urgence : la CI est désormais configurée pour échouer rapidement en cas d'erreur. Si un job échoue, cela interrompt immédiatement tous les autres jobs parallèles afin que tout s'arrête rapidement.
+- Création d'un workflow utilisant une matrice de build, qui se déclenche automatiquement lors d'une tentative de merge d'une Pull Request d'une branche feature/x vers main.
+
+#### Ce qu'on a pu apprendre
+- Gérer la charge d'une matrice de build complexe. En croisant 3 systèmes d'exploitation et 4 versions de Rust, la CI génère 12 exécutions simultanées. Nous avons concrètement vu l'intérêt de faire stopper tous les jobs si l'un d'eux échoue afin de ne pas gaspiller de précieuses minutes de calcul sur les runners GitHub.
+- Concevoir un système de cache robuste sans recourir à des actions tierces de la communauté. Cela nous a obligés à bien comprendre l'arborescence des fichiers de compilation Rust (target/) et la manière de les sauvegarder et de les restaurer efficacement entre deux exécutions.
+
+#### Amélioration à creuser
+- Les performances diffèrent selon les systèmes d'exploitation. Les runners macos-latest et windows-latest ont parfois des temps d'allocation ou de compilation natifs plus longs que Linux. Il serait intéressant de pouvoir ajuster les timeouts spécifiquement en fonction de l'OS cible.
+- La gestion de la taille du cache. Si nos étapes sont descendues à 10-30 secondes grâce à lui, ce cache risque de grossir au fil des versions (notamment avec 4 versions de Rust différentes à stocker). Implémenter une stratégie d'invalidation et de nettoyage automatique de ce cache serait un vrai plus pour l'avenir.
+
