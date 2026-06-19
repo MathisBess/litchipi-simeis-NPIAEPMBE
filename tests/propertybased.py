@@ -1,6 +1,7 @@
 import sys
 import time
 import random
+import math
 
 
 def create_property_based_test(f, regressions=[], time_test=10):
@@ -23,7 +24,6 @@ def create_property_based_test(f, regressions=[], time_test=10):
 
 
 ### Example
-import math
 
 
 def get_dist(a, b):
