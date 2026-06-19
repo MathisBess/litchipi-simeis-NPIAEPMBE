@@ -1,6 +1,5 @@
 name: Publication release automatique
 
-# Déclenché lorsqu'une PR est fusionnée vers une branche release/*
 on:
   pull_request:
     types: [closed]
@@ -9,7 +8,6 @@ on:
 
 jobs:
   publier-release:
-    # Ne s'exécute que si la PR a bien été mergée
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
@@ -24,7 +22,6 @@ jobs:
       - name: Extraire le tag depuis la branche cible
         id: version
         run: |
-          # Exemple : release/1.0 -> tag "1.0"
           BASE="${{ github.event.pull_request.base.ref }}"
           TAG="${BASE#release/}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
@@ -48,7 +45,6 @@ jobs:
 
       - name: Compiler le binaire et générer le manuel
         run: |
-          # Typst sert à produire doc/manual.pdf (comme dans la CI principale)
           wget -q https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
           tar -xf typst-*
           sudo mv typst-*/typst /usr/local/bin/
@@ -58,18 +54,17 @@ jobs:
         run: |
           mkdir -p dist
 
-          # Serveur compilé (binaire principal du jeu)
+          make debian
+          cp simeis.deb dist/
+
           cp target/release/simeis-server dist/simeis-server-linux-x86_64
 
-          # Documentation utilisateur et API
           cp doc/manual.pdf dist/manual.pdf
           cp doc/swagger.json dist/swagger.json
 
-          # SDKs pour intégrer le jeu (Python + sources Rust)
           cp sdk/python.py dist/simeis-sdk.py
           tar --exclude='target' -czf dist/simeis-sdk-rust.tar.gz -C sdk rust
 
-          # Exemple de client Python et README du projet
           cp example/python/client.py dist/example-client.py
           cp README.md dist/README.md
 
@@ -83,7 +78,6 @@ jobs:
           MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          # Récupère toutes les PR mergées vers la branche release concernée
           gh pr list \
             --repo "$REPO" \
             --base "$BASE_REF" \
@@ -98,7 +92,6 @@ jobs:
           with open("/tmp/prs.json") as f:
               prs = json.load(f)
 
-          # Tri chronologique pour un changelog lisible
           prs.sort(key=lambda pr: pr["mergedAt"])
 
           features, bugfixes, autres = [], [], []
@@ -131,19 +124,15 @@ jobs:
               + f"- [Workflow Actions]({os.environ['RUN_URL']})\n"
           )
 
-          # Fichier téléchargeable joint à la release
           with open("dist/CHANGELOG.md", "w", encoding="utf-8") as f:
               f.write(body)
 
-          # Corps de la release pour l'action marketplace (multiline output)
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               out.write("body<<EOF\n")
               out.write(body)
               out.write("\nEOF\n")
           PYEOF
 
-      # Action marketplace : création ou mise à jour idempotente de la release
-      # https://github.com/marketplace/actions/create-update-github-release
       - name: Créer ou mettre à jour la release GitHub
         uses: mini-bomba/create-github-release@v1.2.0
         with:

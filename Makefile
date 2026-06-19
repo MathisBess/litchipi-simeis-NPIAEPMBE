@@ -36,3 +36,25 @@ clean:
 	@echo "Clean"
 	cargo clean
 	rm -f doc/manual.pdf
+
+debian: build
+	@echo "Préparation du paquet Debian"
+	mkdir -p pkg-debian/DEBIAN
+	mkdir -p pkg-debian/usr/bin
+	mkdir -p pkg-debian/usr/share/man/man1
+	mkdir -p pkg-debian/etc/systemd/system
+
+	cp debian-meta/control pkg-debian/DEBIAN/
+	cp debian-meta/postinst pkg-debian/DEBIAN/
+	cp debian-meta/simeis.service pkg-debian/etc/systemd/system/
+	cp debian-meta/simeis.1 pkg-debian/usr/share/man/man1/
+
+	cp target/release/simeis-server pkg-debian/usr/bin/
+
+	chmod 755 pkg-debian/DEBIAN/postinst
+	chmod 644 pkg-debian/etc/systemd/system/simeis.service
+	chmod 644 pkg-debian/usr/share/man/man1/simeis.1
+
+	dpkg-deb --build pkg-debian simeis.deb
+
+	rm -rf pkg-debian
