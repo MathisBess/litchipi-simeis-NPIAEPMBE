@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Récupérer le code de la branche cible
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ matrix.branche }}
           fetch-depth: 0
