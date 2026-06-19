@@ -4,6 +4,8 @@ WORKDIR /usr/src/simeis
 
 COPY . .
 
+RUN rm -f Cargo.lock
+
 RUN cargo build --release
 
 EXPOSE 8080
