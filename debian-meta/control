@@ -5,4 +5,4 @@ Priority: optional
 Architecture: amd64
 Depends: cmatrix
 Maintainer: Mathis BESSON, Adam EPIARD, Nathan PIVETEAU
-Description: Serveur de jeu Simeis pour le projet M1.
+Description: Serveur de jeu Simeis pour le projet M1.
