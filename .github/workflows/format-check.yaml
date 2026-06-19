@@ -13,15 +13,14 @@ jobs:
 
     steps:
       - name: Récupération du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Installation de Ruff
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install ruff
 
-      - name: Exécution de Ruff sur le dossier example/python
+      - name: Exécution de Ruff sur les fichiers Python
         run: |
-          ruff format --check example/python/
-          
-          ruff check --output-format=github example/python/
+          ruff format --check tests/
+          ruff check --output-format=github tests/

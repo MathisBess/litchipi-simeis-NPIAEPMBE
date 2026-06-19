@@ -1,6 +1,7 @@
 import sys
 import time
 import random
+import math
 
 
 def create_property_based_test(f, regressions=[], time_test=10):
@@ -23,7 +24,6 @@ def create_property_based_test(f, regressions=[], time_test=10):
 
 
 ### Example
-import math
 
 
 def get_dist(a, b):
@@ -53,7 +53,7 @@ def distance():
 
     dist_ab = get_dist(a, b)
     dist_ba = get_dist(b, a)
-    
+
     assert dist_ab >= 0, "La distance doit toujours être positive ou nulle"
     assert dist_ab == dist_ba, "La distance doit être symétrique (A->B == B->A)"
     if a == b:
@@ -63,4 +63,6 @@ def distance():
 if __name__ == "__main__":
     time_test_param = int(sys.argv[1]) if len(sys.argv) > 1 else 3
     create_property_based_test(addition, time_test=time_test_param)
-    create_property_based_test(distance, regressions=[4480881574280375424], time_test=time_test_param)
+    create_property_based_test(
+        distance, regressions=[4480881574280375424], time_test=time_test_param
+    )
