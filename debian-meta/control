@@ -1,0 +1,8 @@
+Package: simeis
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: cmatrix
+Maintainer: Mathis BESSON, Adam EPIARD, Nathan PIVETEAU
+Description: Serveur de jeu Simeis pour le projet M1.

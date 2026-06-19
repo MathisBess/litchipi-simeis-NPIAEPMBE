@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+if ! id "simeis" &>/dev/null; then
+    echo "Création de l'utilisateur système simeis..."
+    useradd --system --no-create-home --shell /usr/sbin/nologin simeis
+fi
+
+chmod 755 /usr/bin/simeis-server
+chown simeis:simeis /usr/bin/simeis-server
+
+systemctl daemon-reload
+
+systemctl enable simeis.service
+systemctl start simeis.service
+
+echo "Simeis a été installé et démarré avec succès !"
+exit 0

@@ -6,3 +6,5 @@ result
 .~lock.*.ods#
 scores.json
 __pycache__
+pkg-debian/
+*.deb

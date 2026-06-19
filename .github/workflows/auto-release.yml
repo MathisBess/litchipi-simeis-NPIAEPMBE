@@ -1,0 +1,146 @@
+name: Publication release automatique
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - 'release/**'
+
+jobs:
+  publier-release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+      pull-requests: read 
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Extraire le tag depuis la branche cible
+        id: version
+        run: |
+          BASE="${{ github.event.pull_request.base.ref }}"
+          TAG="${BASE#release/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "base=$BASE" >> $GITHUB_OUTPUT
+
+      - name: Installer Rust stable
+        run: rustup default stable
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-release-
+            ${{ runner.os }}-cargo-
+
+      - name: Compiler le binaire et générer le manuel
+        run: |
+          wget -q https://github.com/typst/typst/releases/latest/download/typst-x86_64-unknown-linux-musl.tar.xz
+          tar -xf typst-*
+          sudo mv typst-*/typst /usr/local/bin/
+          make build doc
+
+      - name: Préparer les artefacts à publier
+        run: |
+          mkdir -p dist
+
+          make debian
+          cp simeis.deb dist/
+
+          cp target/release/simeis-server dist/simeis-server-linux-x86_64
+
+          cp doc/manual.pdf dist/manual.pdf
+          cp doc/swagger.json dist/swagger.json
+
+          cp sdk/python.py dist/simeis-sdk.py
+          tar --exclude='target' -czf dist/simeis-sdk-rust.tar.gz -C sdk rust
+
+          cp example/python/client.py dist/example-client.py
+          cp README.md dist/README.md
+
+      - name: Générer le changelog depuis les PR mergées
+        id: changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ steps.version.outputs.base }}
+          TAG: ${{ steps.version.outputs.tag }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh pr list \
+            --repo "$REPO" \
+            --base "$BASE_REF" \
+            --state merged \
+            --json number,title,headRefName,url,mergedAt \
+            --limit 500 > /tmp/prs.json
+
+          python3 << 'PYEOF'
+          import json
+          import os
+
+          with open("/tmp/prs.json") as f:
+              prs = json.load(f)
+
+          prs.sort(key=lambda pr: pr["mergedAt"])
+
+          features, bugfixes, autres = [], [], []
+
+          for pr in prs:
+              head = pr["headRefName"]
+              line = f"- [{pr['title']}]({pr['url']}) (#{pr['number']})"
+
+              # Catégorisation selon la branche source de la PR
+              if head.startswith("feature/"):
+                  features.append(line)
+              elif head.startswith("bug/"):
+                  bugfixes.append(line)
+              else:
+                  autres.append(line)
+
+          def section(title, items):
+              if not items:
+                  return f"### {title}\n\n_Aucun changement._\n\n"
+              return f"### {title}\n\n" + "\n".join(items) + "\n\n"
+
+          body = (
+              f"## Changelog — Release {os.environ['TAG']}\n\n"
+              + section("Features", features)
+              + section("Bugfix", bugfixes)
+              + section("Autre", autres)
+              + "---\n\n"
+              + f"- Branche : `{os.environ['BASE_REF']}`\n"
+              + f"- Commit : `{os.environ['MERGE_SHA']}`\n"
+              + f"- [Workflow Actions]({os.environ['RUN_URL']})\n"
+          )
+
+          with open("dist/CHANGELOG.md", "w", encoding="utf-8") as f:
+              f.write(body)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write("body<<EOF\n")
+              out.write(body)
+              out.write("\nEOF\n")
+          PYEOF
+
+      - name: Créer ou mettre à jour la release GitHub
+        uses: mini-bomba/create-github-release@v1.2.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          target_commit: ${{ github.event.pull_request.merge_commit_sha }}
+          body: ${{ steps.changelog.outputs.body }}
+          files: |
+            dist/*
+          clear_attachments: true
