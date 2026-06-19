@@ -1,10 +1,8 @@
-FROM rust:1.85.0-bookworm
+FROM rust:1.88.0-bookworm
 
 WORKDIR /usr/src/simeis
 
 COPY . .
-
-RUN rm -f Cargo.lock
 
 RUN cargo build --release
 
