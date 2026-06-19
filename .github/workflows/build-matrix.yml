@@ -10,7 +10,7 @@ jobs:
     name: Build ${{ matrix.os }} / Rust ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         rust: ['1.75.0', '1.80.0', '1.85.0', '1.88.0']
