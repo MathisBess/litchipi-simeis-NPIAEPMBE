@@ -15,8 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-cargo-dependabot-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-dependabot-
+            ${{ runner.os }}-cargo-
+
       - name: Install cargo-update
-        run: cargo install cargo-update
+        run: command -v cargo-install-update >/dev/null || cargo install cargo-update
 
       - name: Update all dependencies
         run: |

@@ -1,6 +1,7 @@
 import sys
 import time
 import random
+import math
 
 
 def create_property_based_test(f, regressions=[], time_test=10):
@@ -23,7 +24,6 @@ def create_property_based_test(f, regressions=[], time_test=10):
 
 
 ### Example
-import math
 
 
 def get_dist(a, b):
@@ -35,7 +35,9 @@ def addition():
     y = random.randrange(0, 10000)
     z = random.randrange(0, 10000)
 
-    # Exercice:    Tester les additions
+    assert x + y == y + x, "L'addition doit être commutative"
+    assert (x + y) + z == x + (y + z), "L'addition doit être associative"
+    assert x + 0 == x, "0 doit être l'élément neutre"
 
 
 def distance():
@@ -49,8 +51,18 @@ def distance():
     z2 = random.randrange(-100, 100)
     b = (x2, y2, z2)
 
-    # Exercice:     Tester la distance entre le point A et le point B
+    dist_ab = get_dist(a, b)
+    dist_ba = get_dist(b, a)
+
+    assert dist_ab >= 0, "La distance doit toujours être positive ou nulle"
+    assert dist_ab == dist_ba, "La distance doit être symétrique (A->B == B->A)"
+    if a == b:
+        assert dist_ab == 0, "La distance entre un point et lui-même doit être 0"
 
 
-create_property_based_test(addition, time_test=3)
-create_property_based_test(distance, regressions=[4480881574280375424], time_test=10)
+if __name__ == "__main__":
+    time_test_param = int(sys.argv[1]) if len(sys.argv) > 1 else 3
+    create_property_based_test(addition, time_test=time_test_param)
+    create_property_based_test(
+        distance, regressions=[4480881574280375424], time_test=time_test_param
+    )
