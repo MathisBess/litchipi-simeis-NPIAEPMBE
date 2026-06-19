@@ -6,17 +6,51 @@ on:
     branches:
       - "release/**"
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
-  functional-test-skeleton:
+  security-audit:
     if: github.event.pull_request.merged == true
+    name: Audit de Sécurité
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout du code
+        uses: actions/checkout@v6
 
-      - name: Installer Rust stable
-        run: |
-          rustup toolchain install stable --profile minimal
-          rustup default stable
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-cargo-audit-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-audit-
+            ${{ runner.os }}-cargo-
+
+      - name: Installer cargo-audit
+        run: command -v cargo-audit >/dev/null || cargo install cargo-audit --locked
+
+      - name: Auditer les dependances avec cargo-audit
+        run: cargo audit
+
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}
+
+  unused-deps:
+    if: github.event.pull_request.merged == true
+    name: Dépendances orphelines
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v6
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -27,22 +61,10 @@ jobs:
             ~/.cargo/git/db/
             ~/.cargo/bin/
             target/
-          key: ${{ runner.os }}-cargo-analysis-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-udeps-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-analysis-
+            ${{ runner.os }}-cargo-udeps-
             ${{ runner.os }}-cargo-
-
-      - name: Compiler en debug avec heavy-testing
-        run: cargo build -p simeis-server --features heavy-testing
-
-      - name: Lancer les tests unitaires avec heavy-testing
-        run: cargo test -p simeis-server --features heavy-testing
-
-      - name: Installer cargo-audit
-        run: command -v cargo-audit >/dev/null || cargo install cargo-audit --locked
-
-      - name: Auditer les dependances avec cargo-audit
-        run: cargo audit
 
       - name: Installer nightly + rust-src pour cargo-udeps
         run: rustup toolchain install nightly --profile minimal --component rust-src
@@ -53,14 +75,90 @@ jobs:
       - name: Verifier les dependances inutiles avec cargo-udeps
         run: cargo +nightly udeps --workspace --all-targets
 
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}
+
+  heavy-unit-tests:
+    if: github.event.pull_request.merged == true
+    name: Tests Unitaires Lourds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v6
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-heavy-unit-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-heavy-unit-
+            ${{ runner.os }}-cargo-
+
+      - name: Lancer les tests unitaires avec heavy-testing
+        run: cargo test -p simeis-server --features heavy-testing
+
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}
+
+  heavy-property-tests:
+    if: github.event.pull_request.merged == true
+    name: Property-Based Lourds (60s)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v6
+
       - name: Lancer les tests property-based (Version lourde - 60 secondes)
         run: python3 tests/propertybased.py 60
+
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}
+
+  functional-tests:
+    if: github.event.pull_request.merged == true
+    name: Tests Fonctionnels
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v6
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-analysis-func-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-analysis-func-
+            ${{ runner.os }}-cargo-
+
+      - name: Compiler en debug avec heavy-testing
+        run: cargo build -p simeis-server --features heavy-testing
 
       - name: Lancer le script Python de tests fonctionnels
         run: |
           pip3 install requests
           python3 tests/functional_tests.py
 
-      - name: Vérifier que le script s'est bien exécuté
-        if: success()
-        run: echo "Execution du script Python OK."
+      - name: Annuler le workflow en cas d'echec
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh run cancel ${{ github.run_id }}
