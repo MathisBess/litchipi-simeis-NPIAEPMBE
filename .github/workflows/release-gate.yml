@@ -1,0 +1,22 @@
+name: Vérification PR release
+
+on:
+  pull_request:
+    types: [opened]
+    branches:
+      - 'release/**'
+
+jobs:
+  check-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier la branche source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SOURCE="${{ github.head_ref }}"
+          if [[ "$SOURCE" != "main" && ! "$SOURCE" =~ ^bug/ ]]; then
+            gh pr close ${{ github.event.pull_request.number }} \
+              --repo ${{ github.repository }} \
+              --comment "PR refusée : seules les branches main ou bug/* peuvent cibler release."
+          fi
