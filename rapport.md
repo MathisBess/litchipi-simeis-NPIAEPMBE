@@ -1,6 +1,8 @@
 # Rapport CI/CD 
 ## Nathan PIVETEAU, Adam EPIARD et Mathis BESSON
 
+---
+
 ### TP1 - Mise en place de la ci du projet
 
 #### Les ajouts
@@ -18,6 +20,7 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 - Notre ci est très lente car elle recompile à chaque fois. On a commencé à se renseigner sur l'utilisation du cache pour gagner du temps.
 - On aimerait automatiser la création des "Releases" sur GitHub pour que le binaire et le manuel soient téléchargeables en un clic dès qu'on sort une version.
 
+---
 
 ### TP2 - Qualité, Analyse et Automatisation des branches
 
@@ -39,6 +42,8 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 - Le script de vérification des T0D0s fait actuellement échouer la CI en affichant l'erreur dans les logs. Il serait très intéressant d'utiliser l'API GitHub pour écrire un commentaire automatisé directement sur la ligne de code concernée dans la Pull Request.
 - L'outil `cargo-udeps` requiert la toolchain *nightly* et recompile une grande partie du projet pour fonctionner, ce qui ralentit considérablement l'analyse avancée. Mettre en place un système de cache robuste serait ici très bénéfique.
 
+---
+
 ### TP3 - Tests Avancés (Fonctionnels, Coverage et Property-Based)
 
 #### Les ajouts
@@ -57,6 +62,8 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 - L'exécution de la version lourde du property-based testing  allonge logiquement le temps de la CI. Il serait intéressant de paralléliser ces exécutions mathématiques sur plusieurs runners.
 - Générer des rapports visuels (HTML ou XML) pour le Code Coverage et les tests fonctionnels, afin de les lier à la CI sous forme d'Artifacts pour une consultation plus agréable que la lecture des logs bruts.
 
+---
+
 ### TP4 - Optimisations
 #### Les ajouts
 - Implémentation d'un système de cache sur les workflows. L'objectif de cet ajout est de réduire au maximum le temps d'exécution des différentes étapes pour qu'elles ne durent pas plus de 10 à 30 secondes chacune.
@@ -72,3 +79,33 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 - Les performances diffèrent selon les systèmes d'exploitation. Les runners macos-latest et windows-latest ont parfois des temps d'allocation ou de compilation natifs plus longs que Linux. Il serait intéressant de pouvoir ajuster les timeouts spécifiquement en fonction de l'OS cible.
 - La gestion de la taille du cache. Si nos étapes sont descendues à 10-30 secondes grâce à lui, ce cache risque de grossir au fil des versions (notamment avec 4 versions de Rust différentes à stocker). Implémenter une stratégie d'invalidation et de nettoyage automatique de ce cache serait un vrai plus pour l'avenir.
 
+---
+
+### TP5 - Artefacts de release et Paquet Debian
+
+#### Les ajouts
+- Automatisation complète du processus de publication : lors du merge d'une PR sur une branche `release/x`, un workflow génère et met en ligne une release officielle sur GitHub.
+- Génération automatique d'un Changelog structuré en utilisant exclusivement l'outil en ligne de commande `gh`. Les modifications sont intelligemment catégorisées (Features, Bugfixes, Autre) selon la nomenclature des branches sources.
+- Création d'un paquet d'installation `.deb` complet pour les environnements Debian/Ubuntu, généré directement depuis la CI. Ce paquet inclut la création d'un utilisateur système dédié, une page de manuel, un service `systemd` pour l'exécution en arrière-plan, et force l'installation d'une dépendance factice (`cmatrix`).
+
+#### Ce qu'on a pu apprendre
+- Démystification du packaging Debian : nous avons compris qu'un fichier `.deb` repose avant tout sur la reproduction fidèle de l'arborescence du système cible (ex: placer le binaire dans un sous-dossier virtuel `usr/bin/`).
+
+#### Amélioration à creuser
+- Actuellement, le test du paquet Debian généré s'effectue manuellement sur une Machine Virtuelle locale. Il serait très pertinent d'ajouter un job final dans notre CI qui lancerait un conteneur ou une VM éphémère basée sur Debian pour télécharger l'artefact, l'installer via `apt`, et vérifier le statut du service avec `systemctl` automatiquement.
+
+---
+
+### TP6 - Continuous Delivery et Dockerisation
+
+#### Les ajouts
+- Conteneurisation de notre serveur Simeis (Rust) via un `Dockerfile` optimisé. La construction de cette image et son envoi (push) vers le registre public Docker Hub sont désormais totalement automatisés dans la CI lors d'une release, en utilisant les secrets GitHub pour l'authentification.
+- Conteneurisation de notre client interactif (Python) permettant d'interroger le serveur en lui passant dynamiquement ses arguments de connexion (`<pseudo> <IP> <port>`).
+- Création et configuration d'un réseau Docker virtuel (`simeis-network`) en local pour faire communiquer de manière fluide le conteneur du client et celui du serveur.
+
+#### Ce qu'on a pu apprendre
+- Nous avons appris qu'un serveur configuré sur l'adresse `127.0.0.1` à l'intérieur d'un conteneur devenait complètement aveugle aux requêtes extérieures. Il a fallu repenser notre configuration d'écoute sur `0.0.0.0` et exploiter le système de résolution DNS interne de Docker pour que le client Python trouve le serveur via son nom de conteneur (`simeis-server`).
+- Lors de la création de l'image client, nous avons été confrontés à l'absence de certains `Cargo.toml`. Cela nous a permis de bien comprendre comment définir correctement le "contexte de build" d'une commande Docker pour englober un espace de travail Rust (Workspace) parent dans son intégralité plutôt qu'un sous-dossier isolé.
+
+#### Amélioration à creuser (pas le temps)
+- Actuellement, tester notre architecture multi-conteneurs en local demande de saisir manuellement plusieurs commandes consécutives dans le terminal pour créer le réseau, configurer la sécurité et lier les deux conteneurs. Une amélioration simple et très efficace serait de mettre en place un fichier `docker-compose.yml`. Cela permettrait de centraliser la configuration du réseau virtuel, d'intégrer l'option de sécurité nécessaire pour le serveur, et de lancer l'ensemble de notre infrastructure (serveur + client) en une seule ligne de commande (`docker compose up`).
