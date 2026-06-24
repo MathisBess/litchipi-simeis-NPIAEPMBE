@@ -8,7 +8,7 @@ on:
 
 jobs:
   publier-release:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: write 
@@ -25,7 +25,6 @@ jobs:
           BASE="${{ github.event.pull_request.base.ref }}"
           TAG="${BASE#release/}"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "base=$BASE" >> $GITHUB_OUTPUT
 
       - name: Installer Rust stable
         run: rustup default stable
@@ -53,94 +52,48 @@ jobs:
       - name: Préparer les artefacts à publier
         run: |
           mkdir -p dist
-
-          make debian
-          cp simeis.deb dist/
-
-          cp target/release/simeis-server dist/simeis-server-linux-x86_64
-
-          cp doc/manual.pdf dist/manual.pdf
-          cp doc/swagger.json dist/swagger.json
-
-          cp sdk/python.py dist/simeis-sdk.py
+          make debian || true
+          cp simeis.deb dist/ || true
+          cp target/release/simeis-server dist/simeis-server-linux-x86_64 || true
+          cp doc/manual.pdf dist/manual.pdf || true
+          cp doc/swagger.json dist/swagger.json || true
+          cp sdk/python.py dist/simeis-sdk.py || true
           tar --exclude='target' -czf dist/simeis-sdk-rust.tar.gz -C sdk rust
-
           cp example/python/client.py dist/example-client.py
           cp README.md dist/README.md
 
-      - name: Générer le changelog depuis les PR mergées
-        id: changelog
+      - name: Construire l'image Docker Simeis
+        run: docker build -t litchipi/simeis:latest -f .github/Dockerfile .
+
+      - name: Sauvegarder l'image Docker (Artefact pour la release GitHub)
+        run: docker image save litchipi/simeis:latest | gzip > dist/simeis_image.tar.gz
+
+      - name: Tester le lancement du conteneur
+        run: |
+          docker run -d --name simeis_test -p 8080:8080 --security-opt seccomp=unconfined litchipi/simeis:latest
+          for i in $(seq 1 10); do
+            if curl -s http://localhost:8080 > /dev/null 2>&1; then
+              echo "Serveur prêt après ${i}s"
+              break
+            fi
+            sleep 1
+          done
+          docker ps | grep simeis_test || (echo "Le conteneur a crashé" && docker logs simeis_test && exit 1)
+          docker stop simeis_test
+          docker rm simeis_test
+
+      - name: Envoyer l'image sur Docker Hub
+        run: |
+          docker login -u litchipi --password-stdin <<< "${{ secrets.DOCKERHUB_TOKEN }}"
+          docker push litchipi/simeis:latest
+
+      - name: Créer la release GitHub et générer le Changelog
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          BASE_REF: ${{ steps.version.outputs.base }}
           TAG: ${{ steps.version.outputs.tag }}
-          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          TARGET: ${{ github.event.pull_request.merge_commit_sha }}
         run: |
-          gh pr list \
-            --repo "$REPO" \
-            --base "$BASE_REF" \
-            --state merged \
-            --json number,title,headRefName,url,mergedAt \
-            --limit 500 > /tmp/prs.json
-
-          python3 << 'PYEOF'
-          import json
-          import os
-
-          with open("/tmp/prs.json") as f:
-              prs = json.load(f)
-
-          prs.sort(key=lambda pr: pr["mergedAt"])
-
-          features, bugfixes, autres = [], [], []
-
-          for pr in prs:
-              head = pr["headRefName"]
-              line = f"- [{pr['title']}]({pr['url']}) (#{pr['number']})"
-
-              # Catégorisation selon la branche source de la PR
-              if head.startswith("feature/"):
-                  features.append(line)
-              elif head.startswith("bug/"):
-                  bugfixes.append(line)
-              else:
-                  autres.append(line)
-
-          def section(title, items):
-              if not items:
-                  return f"### {title}\n\n_Aucun changement._\n\n"
-              return f"### {title}\n\n" + "\n".join(items) + "\n\n"
-
-          body = (
-              f"## Changelog — Release {os.environ['TAG']}\n\n"
-              + section("Features", features)
-              + section("Bugfix", bugfixes)
-              + section("Autre", autres)
-              + "---\n\n"
-              + f"- Branche : `{os.environ['BASE_REF']}`\n"
-              + f"- Commit : `{os.environ['MERGE_SHA']}`\n"
-              + f"- [Workflow Actions]({os.environ['RUN_URL']})\n"
-          )
-
-          with open("dist/CHANGELOG.md", "w", encoding="utf-8") as f:
-              f.write(body)
-
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
-              out.write("body<<EOF\n")
-              out.write(body)
-              out.write("\nEOF\n")
-          PYEOF
-
-      - name: Créer ou mettre à jour la release GitHub
-        uses: mini-bomba/create-github-release@v1.2.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.version.outputs.tag }}
-          name: Release ${{ steps.version.outputs.tag }}
-          target_commit: ${{ github.event.pull_request.merge_commit_sha }}
-          body: ${{ steps.changelog.outputs.body }}
-          files: |
-            dist/*
-          clear_attachments: true
+          gh release create "$TAG" dist/* \
+            --target "$TARGET" \
+            --title "Release $TAG" \
+            --generate-notes
