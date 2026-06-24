@@ -66,7 +66,7 @@ jobs:
         run: docker build -t litchipi/simeis:latest -f .github/Dockerfile .
 
       - name: Sauvegarder l'image Docker (Artefact pour la release GitHub)
-        run: docker image save -o dist/simeis_image.tar litchipi/simeis:latest
+        run: docker image save litchipi/simeis:latest | gzip > dist/simeis_image.tar.gz
 
       - name: Tester le lancement du conteneur
         run: |
