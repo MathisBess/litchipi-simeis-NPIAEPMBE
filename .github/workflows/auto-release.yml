@@ -115,19 +115,19 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
-          scp -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_USER@$VPS_IP:/tmp/simeis.deb
-          ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_USER@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
+          scp -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
+          ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
 
       - name: Vérifier la connexion et la version déployée
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_NOM: ${{ secrets.VPS_USER }}
+          VPS_NOM: ${{ secrets.VPS_NOM }}
           EXPECTED_VERSION: ${{ steps.version.outputs.tag }}
         run: |
           sleep 5
           
-          RESPONSE=$(ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_USER@$VPS_IP "curl -s --fail http://localhost:8081/version")
+          RESPONSE=$(ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "curl -s --fail http://localhost:8081/version")
           echo "Réponse de l'API : $RESPONSE"
           ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('version', ''))")
           echo "Version attendue : $EXPECTED_VERSION"
