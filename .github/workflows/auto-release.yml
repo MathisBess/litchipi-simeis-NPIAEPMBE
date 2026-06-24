@@ -28,9 +28,7 @@ jobs:
           echo "base=$BASE" >> $GITHUB_OUTPUT
 
       - name: Installer Rust stable
-        run: |
-          rustup toolchain install 1.88.0
-          rustup default 1.88.0
+        run: rustup default stable
 
       - name: Cache Cargo
         uses: actions/cache@v4
