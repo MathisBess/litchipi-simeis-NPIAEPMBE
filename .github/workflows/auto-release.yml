@@ -153,7 +153,7 @@ jobs:
 
       - name: Tester le lancement du conteneur
         run: |
-          docker run -d --name simeis_test -p 8080:8080 litchipi/simeis:latest
+          docker run -d --name simeis_test -p 8080:8080 --security-opt seccomp=unconfined litchipi/simeis:latest
           
           for i in $(seq 1 10); do
             if curl -s http://localhost:8080 > /dev/null 2>&1; then
@@ -167,7 +167,6 @@ jobs:
           
           docker logs simeis_test
           
-          # Nettoyage
           docker stop simeis_test
           docker rm simeis_test
 
