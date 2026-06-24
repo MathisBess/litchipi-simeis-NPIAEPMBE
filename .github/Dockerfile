@@ -6,6 +6,6 @@ COPY . .
 
 RUN cargo build --release
 
-EXPOSE 8080
+EXPOSE 8081
 
 CMD ["./target/release/simeis-server"]
