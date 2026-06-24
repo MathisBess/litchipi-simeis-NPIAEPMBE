@@ -1,4 +1,4 @@
-FROM rust:1.88.0-bookworm
+FROM rust:bookworm
 
 WORKDIR /usr/src/simeis
 
