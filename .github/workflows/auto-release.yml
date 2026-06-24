@@ -97,3 +97,45 @@ jobs:
             --target "$TARGET" \
             --title "Release $TAG" \
             --generate-notes
+
+      - name: Configurer l'accès SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_TOKEN }}
+          VPS_IP: ${{ vars.VPS_IP }}
+          VPS_PORT: ${{ vars.VPS_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $VPS_PORT -H "$VPS_IP" >> ~/.ssh/known_hosts
+
+      - name: Déployer le paquet .deb sur le VPS
+        env:
+          VPS_IP: ${{ vars.VPS_IP }}
+          VPS_PORT: ${{ vars.VPS_PORT }}
+          VPS_USER: ${{ vars.VPS_NOM }}
+        run: |
+          scp -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_USER@$VPS_IP:/tmp/simeis.deb
+          ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_USER@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
+
+      - name: Vérifier la connexion et la version déployée
+        env:
+          VPS_IP: ${{ vars.VPS_IP }}
+          VPS_PORT: ${{ vars.VPS_PORT }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          EXPECTED_VERSION: ${{ steps.version.outputs.tag }}
+        run: |
+          sleep 5
+          
+          RESPONSE=$(ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_USER@$VPS_IP "curl -s --fail http://localhost:8081/version")
+          echo "Réponse de l'API : $RESPONSE"
+          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('version', ''))")
+          echo "Version attendue : $EXPECTED_VERSION"
+          echo "Version en ligne : $ACTUAL_VERSION"
+          
+          if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "Erreur : La version obtenue ($ACTUAL_VERSION) ne correspond pas à la version attendue ($EXPECTED_VERSION)"
+            exit 1
+          fi
+          
+          echo "Déploiement et version validés avec succès !"
