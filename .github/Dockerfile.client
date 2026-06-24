@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+
+WORKDIR /usr/src/simeis-client
+
+RUN pip install requests
+
+COPY . .
+
+CMD ["python", "example/python/mathis_script.py", "Hackerman", "simeis-server", "8080"]
