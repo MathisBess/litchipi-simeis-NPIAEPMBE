@@ -45,7 +45,7 @@ jobs:
 
       - name: Exécution des tests fonctionnels
         run: |
-          python3 tests/functional_tests.py 127.0.0.1 8080
+          python3 tests/functional_tests.py 127.0.0.1 8081
 
       - name: Annuler le workflow en cas d'echec
         if: failure()
