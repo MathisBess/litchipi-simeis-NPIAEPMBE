@@ -100,29 +100,29 @@ jobs:
 
       - name: Configurer l'accès SSH
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_TOKEN }}
-          VPS_IP: ${{ vars.VPS_IP }}
-          VPS_PORT: ${{ vars.VPS_PORT }}
+          SSH_TOKEN: ${{ secrets.SSH_TOKEN }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "$SSH_TOKEN" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p $VPS_PORT -H "$VPS_IP" >> ~/.ssh/known_hosts
 
       - name: Déployer le paquet .deb sur le VPS
         env:
-          VPS_IP: ${{ vars.VPS_IP }}
-          VPS_PORT: ${{ vars.VPS_PORT }}
-          VPS_USER: ${{ vars.VPS_NOM }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
           scp -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_USER@$VPS_IP:/tmp/simeis.deb
           ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_USER@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
 
       - name: Vérifier la connexion et la version déployée
         env:
-          VPS_IP: ${{ vars.VPS_IP }}
-          VPS_PORT: ${{ vars.VPS_PORT }}
-          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_NOM: ${{ secrets.VPS_USER }}
           EXPECTED_VERSION: ${{ steps.version.outputs.tag }}
         run: |
           sleep 5
