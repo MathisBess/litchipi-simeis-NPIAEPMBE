@@ -124,21 +124,13 @@ jobs:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
-          EXPECTED_VERSION: ${{ steps.version.outputs.tag }}
         run: |
           ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa -L 8081:localhost:8081 -N -f $VPS_NOM@$VPS_IP
-          
-          RESPONSE=""
-          for i in $(seq 1 10); do
-            echo "Tentative de connexion via le tunnel SSH ($i/10)..."
-            RESPONSE=$(curl -s --fail http://localhost:8081/version || true)
-            if [ ! -z "$RESPONSE" ]; then
-              break
-            fi
-            sleep 2
-          done
+          sleep 3
+          RESPONSE=$(curl -s --fail http://localhost:8081/version)
           echo "Réponse de l'API : $RESPONSE"
           ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.loads(sys.stdin.read() or '{}').get('version', ''))")
+          EXPECTED_VERSION=$(grep -m1 '^version =' simeis-server/Cargo.toml | cut -d'"' -f2)
           echo "Version attendue : $EXPECTED_VERSION"
           echo "Version en ligne : $ACTUAL_VERSION"
           
