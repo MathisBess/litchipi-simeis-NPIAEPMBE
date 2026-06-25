@@ -151,7 +151,18 @@ jobs:
           
           RESPONSE=$(ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "curl -s --fail http://localhost:8081/version")
           echo "Réponse de l'API : $RESPONSE"
-          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('version', ''))")
+          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "
+          import sys, json
+          for line in sys.stdin:
+              line = line.strip()
+              if line.startswith('{') and line.endswith('}'):
+                  try:
+                      print(json.loads(line).get('version', ''))
+                      sys.exit(0)
+                  except:
+                      pass
+          sys.exit(1)
+          ")
           echo "Version attendue : $EXPECTED_VERSION"
           echo "Version en ligne : $ACTUAL_VERSION"
           
