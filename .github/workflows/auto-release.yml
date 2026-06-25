@@ -87,16 +87,16 @@ jobs:
           docker login -u litchipi --password-stdin <<< "${{ secrets.DOCKERHUB_TOKEN }}"
           docker push litchipi/simeis:latest
 
-      - name: Créer la release GitHub et générer le Changelog
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ steps.version.outputs.tag }}
-          TARGET: ${{ github.event.pull_request.merge_commit_sha }}
-        run: |
-          gh release create "$TAG" dist/* \
-            --target "$TARGET" \
-            --title "Release $TAG" \
-            --generate-notes
+      # - name: Créer la release GitHub et générer le Changelog
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     TAG: ${{ steps.version.outputs.tag }}
+      #     TARGET: ${{ github.event.pull_request.merge_commit_sha }}
+      #   run: |
+      #     gh release create "$TAG" dist/* \
+      #       --target "$TARGET" \
+      #       --title "Release $TAG" \
+      #       --generate-notes
 
       - name: Configurer l'accès SSH
         env:
