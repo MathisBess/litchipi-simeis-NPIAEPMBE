@@ -7,24 +7,14 @@ on:
       - 'release/**'
 
 jobs:
-  publier-release:
+  build-binary:
     if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write 
-      pull-requests: read 
     steps:
       - name: Checkout du commit de fusion
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Extraire le tag depuis la branche cible
-        id: version
-        run: |
-          BASE="${{ github.event.pull_request.base.ref }}"
-          TAG="${BASE#release/}"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Installer Rust stable
         run: rustup default stable
@@ -62,11 +52,47 @@ jobs:
           cp example/python/client.py dist/example-client.py
           cp README.md dist/README.md
 
+      - name: Téléverser les artefacts de build Rust
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-artifacts
+          path: dist/
+
+  build-docker:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
       - name: Construire l'image Docker Simeis
         run: docker build -t litchipi/simeis:latest -f .github/Dockerfile .
 
-      - name: Sauvegarder l'image Docker (Artefact pour la release GitHub)
-        run: docker image save litchipi/simeis:latest | gzip > dist/simeis_image.tar.gz
+      - name: Sauvegarder l'image Docker
+        run: |
+          mkdir -p dist
+          docker image save litchipi/simeis:latest | gzip > dist/simeis_image.tar.gz
+
+      - name: Téléverser l'image Docker
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-artifact
+          path: dist/simeis_image.tar.gz
+
+  test-docker:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Télécharger l'image Docker
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-artifact
+          path: dist/
+
+      - name: Charger l'image Docker
+        run: gzip -d -c dist/simeis_image.tar.gz | docker load
 
       - name: Tester le lancement du conteneur
         run: |
@@ -81,6 +107,40 @@ jobs:
           docker ps | grep simeis_test || (echo "Le conteneur a crashé" && docker logs simeis_test && exit 1)
           docker stop simeis_test
           docker rm simeis_test
+
+  release:
+    needs: [build-binary, test-docker]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Extraire le tag depuis la branche cible
+        id: version
+        run: |
+          BASE="${{ github.event.pull_request.base.ref }}"
+          TAG="${BASE#release/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Télécharger les artefacts de build Rust
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-artifacts
+          path: dist/
+
+      - name: Télécharger l'image Docker
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-artifact
+          path: dist/
+
+      - name: Charger l'image Docker
+        run: gzip -d -c dist/simeis_image.tar.gz | docker load
 
       - name: Envoyer l'image sur Docker Hub
         run: |
@@ -97,6 +157,21 @@ jobs:
             --target "$TARGET" \
             --title "Release $TAG" \
             --generate-notes
+
+  deploy:
+    needs: [build-binary, test-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Télécharger les artefacts de build Rust
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-artifacts
+          path: dist/
 
       - name: Configurer l'accès SSH
         env:
