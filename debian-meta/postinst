@@ -12,7 +12,7 @@ chown simeis:simeis /usr/bin/simeis-server
 systemctl daemon-reload
 
 systemctl enable simeis.service
-systemctl start simeis.service
+systemctl restart simeis.service
 
 echo "Simeis a été installé et démarré avec succès !"
 exit 0

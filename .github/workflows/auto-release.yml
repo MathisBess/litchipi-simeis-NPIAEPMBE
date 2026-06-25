@@ -192,7 +192,7 @@ jobs:
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
           scp -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
-          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "echo '$VPS_PASSWORD' | sudo -S dpkg -i /tmp/simeis.deb"
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "echo '$VPS_PASSWORD' | sudo -S dpkg -i /tmp/simeis.deb && echo '$VPS_PASSWORD' | sudo -S systemctl restart simeis.service"
 
       - name: Vérifier la connexion et la version déployée
         env:
