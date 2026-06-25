@@ -109,14 +109,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p $VPS_PORT -H "$VPS_IP" >> ~/.ssh/known_hosts
 
-      - name: Déployer le paquet .deb sur le VPS
+      - name: Déployer et installer le paquet .deb sur le VPS
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          scp -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
-          ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
+          scp -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "echo '$VPS_PASSWORD' | sudo -S dpkg -i /tmp/simeis.deb"
 
       - name: Vérifier la connexion et la version déployée
         env:
@@ -125,11 +126,19 @@ jobs:
           VPS_NOM: ${{ secrets.VPS_NOM }}
           EXPECTED_VERSION: ${{ steps.version.outputs.tag }}
         run: |
-          sleep 5
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa -L 8081:localhost:8081 -N -f $VPS_NOM@$VPS_IP
           
-          RESPONSE=$(ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "curl -s --fail http://localhost:8081/version")
+          RESPONSE=""
+          for i in $(seq 1 10); do
+            echo "Tentative de connexion via le tunnel SSH ($i/10)..."
+            RESPONSE=$(curl -s --fail http://localhost:8081/version || true)
+            if [ ! -z "$RESPONSE" ]; then
+              break
+            fi
+            sleep 2
+          done
           echo "Réponse de l'API : $RESPONSE"
-          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('version', ''))")
+          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.loads(sys.stdin.read() or '{}').get('version', ''))")
           echo "Version attendue : $EXPECTED_VERSION"
           echo "Version en ligne : $ACTUAL_VERSION"
           
