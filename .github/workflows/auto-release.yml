@@ -3,7 +3,7 @@ name: Publication release automatique
 on:
   push:
     branches:
-      - 'feature/TP7-deployment'
+      - 'Feature/TP7-deployment'
   workflow_dispatch:  
 
 jobs:
