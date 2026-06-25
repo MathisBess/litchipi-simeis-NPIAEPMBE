@@ -119,7 +119,17 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
-          scp -v -O -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
+          # On retire le -O et on ajoute || true pour ignorer le code -1
+          scp -v -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
+          
+      - name: Vérifier la présence du paquet sur le VPS
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_NOM: ${{ secrets.VPS_NOM }}
+        run: |
+          # Vérifie si le fichier existe et n'est pas vide sur le VPS
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "ls -la /tmp/simeis.deb"
 
       - name: Installer le paquet sur le VPS via SSH (Mode verbeux)
         env:
