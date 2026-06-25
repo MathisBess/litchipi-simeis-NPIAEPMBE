@@ -109,14 +109,25 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p $VPS_PORT -H "$VPS_IP" >> ~/.ssh/known_hosts
 
-      - name: Déployer le paquet .deb sur le VPS
+      - name: Vérifier l'existence du fichier .deb
+        run: |
+          ls -la dist/
+
+      - name: Copier le paquet .deb via SCP (Mode verbeux)
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
-          scp -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
-          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
+          scp -v -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
+
+      - name: Installer le paquet sur le VPS via SSH (Mode verbeux)
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_NOM: ${{ secrets.VPS_NOM }}
+        run: |
+          ssh -v -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
 
       - name: Vérifier la connexion et la version déployée
         env:
