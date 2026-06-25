@@ -119,7 +119,6 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
-          # On retire le -O et on ajoute || true pour ignorer le code -1
           scp -v -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
           
       - name: Vérifier la présence du paquet sur le VPS
@@ -128,7 +127,6 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
-          # Vérifie si le fichier existe et n'est pas vide sur le VPS
           ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "ls -la /tmp/simeis.deb"
 
       - name: Installer le paquet sur le VPS via SSH (Mode verbeux)
@@ -147,11 +145,12 @@ jobs:
           VPS_NOM: ${{ secrets.VPS_NOM }}
           EXPECTED_VERSION: ${{ steps.version.outputs.tag }}
         run: |
-          # Attendre que le serveur démarre et réponde (jusqu'à 20 secondes)
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa -L 8081:localhost:8081 -N -f $VPS_NOM@$VPS_IP
+          
           RESPONSE=""
           for i in $(seq 1 10); do
-            echo "Tentative de connexion au serveur ($i/10)..."
-            RESPONSE=$(ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "curl -s --fail http://localhost:8081/version" || true)
+            echo "Tentative de connexion via le tunnel SSH ($i/10)..."
+            RESPONSE=$(curl -s --fail http://localhost:8081/version || true)
             if [ ! -z "$RESPONSE" ]; then
               break
             fi
