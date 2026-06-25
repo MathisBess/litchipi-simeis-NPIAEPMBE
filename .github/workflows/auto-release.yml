@@ -1,14 +1,14 @@
 name: Publication release automatique
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
-      - 'release/**'
+      - 'feature/TP7-deployment'
+  workflow_dispatch:  
 
 jobs:
   publier-release:
-    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
+    # if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: write 
@@ -24,7 +24,7 @@ jobs:
         run: |
           BASE="${{ github.event.pull_request.base.ref }}"
           TAG="${BASE#release/}"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "tag=$TAG-test" >> $GITHUB_OUTPUT
 
       - name: Installer Rust stable
         run: rustup default stable
@@ -115,8 +115,8 @@ jobs:
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
         run: |
-          scp -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
-          ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
+          scp -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "sudo dpkg -i /tmp/simeis.deb"
 
       - name: Vérifier la connexion et la version déployée
         env:
@@ -127,7 +127,7 @@ jobs:
         run: |
           sleep 5
           
-          RESPONSE=$(ssh -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "curl -s --fail http://localhost:8081/version")
+          RESPONSE=$(ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "curl -s --fail http://localhost:8081/version")
           echo "Réponse de l'API : $RESPONSE"
           ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('version', ''))")
           echo "Version attendue : $EXPECTED_VERSION"
