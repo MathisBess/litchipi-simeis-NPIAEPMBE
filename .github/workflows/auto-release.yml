@@ -1,14 +1,14 @@
 name: Publication release automatique
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
-      - 'Feature/TP7-deployment'
-  workflow_dispatch:  
+      - 'release/**'
 
 jobs:
   publier-release:
-    # if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: write 
@@ -87,16 +87,16 @@ jobs:
           docker login -u litchipi --password-stdin <<< "${{ secrets.DOCKERHUB_TOKEN }}"
           docker push litchipi/simeis:latest
 
-      # - name: Créer la release GitHub et générer le Changelog
-      #   env:
-      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     TAG: ${{ steps.version.outputs.tag }}
-      #     TARGET: ${{ github.event.pull_request.merge_commit_sha }}
-      #   run: |
-      #     gh release create "$TAG" dist/* \
-      #       --target "$TARGET" \
-      #       --title "Release $TAG" \
-      #       --generate-notes
+      - name: Créer la release GitHub et générer le Changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+          TARGET: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          gh release create "$TAG" dist/* \
+            --target "$TARGET" \
+            --title "Release $TAG" \
+            --generate-notes
 
       - name: Configurer l'accès SSH
         env:
@@ -109,34 +109,15 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -p $VPS_PORT -H "$VPS_IP" >> ~/.ssh/known_hosts
 
-      - name: Vérifier l'existence du fichier .deb
-        run: |
-          ls -la dist/
-
-      - name: Copier le paquet .deb via SCP (Mode verbeux)
-        env:
-          VPS_IP: ${{ secrets.VPS_IP }}
-          VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_NOM: ${{ secrets.VPS_NOM }}
-        run: |
-          scp -v -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
-          
-      - name: Vérifier la présence du paquet sur le VPS
-        env:
-          VPS_IP: ${{ secrets.VPS_IP }}
-          VPS_PORT: ${{ secrets.VPS_PORT }}
-          VPS_NOM: ${{ secrets.VPS_NOM }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "ls -la /tmp/simeis.deb"
-
-      - name: Installer le paquet sur le VPS via SSH (Mode verbeux)
+      - name: Déployer et installer le paquet .deb sur le VPS
         env:
           VPS_IP: ${{ secrets.VPS_IP }}
           VPS_PORT: ${{ secrets.VPS_PORT }}
           VPS_NOM: ${{ secrets.VPS_NOM }}
           VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: |
-          ssh -v -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "echo '$VPS_PASSWORD' | sudo -S dpkg -i /tmp/simeis.deb"
+          scp -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "echo '$VPS_PASSWORD' | sudo -S dpkg -i /tmp/simeis.deb"
 
       - name: Vérifier la connexion et la version déployée
         env:
@@ -157,18 +138,7 @@ jobs:
             sleep 2
           done
           echo "Réponse de l'API : $RESPONSE"
-          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "
-          import sys, json
-          for line in sys.stdin:
-              line = line.strip()
-              if line.startswith('{') and line.endswith('}'):
-                  try:
-                      print(json.loads(line).get('version', ''))
-                      sys.exit(0)
-                  except:
-                      pass
-          sys.exit(1)
-          ")
+          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.loads(sys.stdin.read() or '{}').get('version', ''))")
           echo "Version attendue : $EXPECTED_VERSION"
           echo "Version en ligne : $ACTUAL_VERSION"
           
