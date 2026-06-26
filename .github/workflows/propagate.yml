@@ -41,14 +41,24 @@ jobs:
       - name: Copier les modifications
         run: |
           git fetch origin ${{ github.event.pull_request.merge_commit_sha }}
-          # Apporte les fichiers modifiés par la PR sans valider le commit tout de suite (-n)
           git cherry-pick -n -m 1 ${{ github.event.pull_request.merge_commit_sha }} || git cherry-pick -n ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Créer la nouvelle Pull Request
-        uses: peter-evans/create-pull-request@v8
-        with:
-          branch: auto-propagate/${{ matrix.branche }}-pr-${{ github.event.pull_request.number }}
-          base: ${{ matrix.branche }}
-          title: "Propagation du fix #${{ github.event.pull_request.number }} vers ${{ matrix.branche }}"
-          body: "Création automatique de la Pull Request suite à la correction de bug de la branche `${{ github.event.pull_request.head.ref }}`."
-          commit-message: "Propagation automatique depuis la PR #${{ github.event.pull_request.number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          PROP_BRANCH="auto-propagate/${{ matrix.branche }}-pr-${{ github.event.pull_request.number }}"
+          
+          git checkout -b "$PROP_BRANCH"
+          git add -A
+          git commit -m "Propagation automatique depuis la PR #${{ github.event.pull_request.number }}"
+          git push -f origin "$PROP_BRANCH"
+          
+          gh pr create \
+            --title "Propagation du fix #${{ github.event.pull_request.number }} vers ${{ matrix.branche }}" \
+            --body "Création automatique de la Pull Request suite à la correction de bug de la branche \`${{ github.event.pull_request.head.ref }}\`." \
+            --base "${{ matrix.branche }}" \
+            --head "$PROP_BRANCH"
