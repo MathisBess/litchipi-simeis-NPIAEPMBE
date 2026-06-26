@@ -3,10 +3,11 @@ name: Matrice de build
 on:
   pull_request:
     branches:
-      - 'release/**'
+      - main
 
 jobs:
   build-matrix:
+    if: startsWith(github.head_ref, 'feature/')
     name: Build ${{ matrix.os }} / Rust ${{ matrix.rust }}
     runs-on: ${{ matrix.os }}
     strategy:

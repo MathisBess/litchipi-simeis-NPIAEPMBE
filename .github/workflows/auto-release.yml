@@ -7,24 +7,14 @@ on:
       - 'release/**'
 
 jobs:
-  publier-release:
+  build-binary:
     if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write 
-      pull-requests: read 
     steps:
       - name: Checkout du commit de fusion
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha }}
-
-      - name: Extraire le tag depuis la branche cible
-        id: version
-        run: |
-          BASE="${{ github.event.pull_request.base.ref }}"
-          TAG="${BASE#release/}"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Installer Rust stable
         run: rustup default stable
@@ -62,17 +52,53 @@ jobs:
           cp example/python/client.py dist/example-client.py
           cp README.md dist/README.md
 
+      - name: Téléverser les artefacts de build Rust
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-artifacts
+          path: dist/
+
+  build-docker:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
       - name: Construire l'image Docker Simeis
         run: docker build -t litchipi/simeis:latest -f .github/Dockerfile .
 
-      - name: Sauvegarder l'image Docker (Artefact pour la release GitHub)
-        run: docker image save litchipi/simeis:latest | gzip > dist/simeis_image.tar.gz
+      - name: Sauvegarder l'image Docker
+        run: |
+          mkdir -p dist
+          docker image save litchipi/simeis:latest | gzip > dist/simeis_image.tar.gz
+
+      - name: Téléverser l'image Docker
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-artifact
+          path: dist/simeis_image.tar.gz
+
+  test-docker:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Télécharger l'image Docker
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-artifact
+          path: dist/
+
+      - name: Charger l'image Docker
+        run: gzip -d -c dist/simeis_image.tar.gz | docker load
 
       - name: Tester le lancement du conteneur
         run: |
-          docker run -d --name simeis_test -p 8080:8080 --security-opt seccomp=unconfined litchipi/simeis:latest
+          docker run -d --name simeis_test -p 8081:8081 --security-opt seccomp=unconfined litchipi/simeis:latest
           for i in $(seq 1 10); do
-            if curl -s http://localhost:8080 > /dev/null 2>&1; then
+            if curl -s http://localhost:8081 > /dev/null 2>&1; then
               echo "Serveur prêt après ${i}s"
               break
             fi
@@ -82,10 +108,121 @@ jobs:
           docker stop simeis_test
           docker rm simeis_test
 
+  release:
+    needs: [build-binary, test-docker]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Extraire le tag depuis la branche cible
+        id: version
+        run: |
+          BASE="${{ github.event.pull_request.base.ref }}"
+          TAG="${BASE#release/}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Télécharger les artefacts de build Rust
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-artifacts
+          path: dist/
+
+      - name: Télécharger l'image Docker
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-artifact
+          path: dist/
+
+      - name: Charger l'image Docker
+        run: gzip -d -c dist/simeis_image.tar.gz | docker load
+
       - name: Envoyer l'image sur Docker Hub
         run: |
           docker login -u litchipi --password-stdin <<< "${{ secrets.DOCKERHUB_TOKEN }}"
           docker push litchipi/simeis:latest
+
+      - name: Générer le Changelog
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch --tags
+          TAGS=$(git tag -l)
+          if [ -n "$TAGS" ]; then
+            LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          else
+            LAST_TAG=""
+          fi
+          
+          mkdir -p /tmp/changelog
+          rm -f /tmp/changelog/*
+          
+          if [ -n "$LAST_TAG" ]; then
+            COMMITS=$(git log "${LAST_TAG}..HEAD" --oneline)
+          else
+            COMMITS=$(git log --oneline)
+          fi
+          
+          echo "$COMMITS" | while read -r line; do
+            PR_NUM=""
+            if echo "$line" | grep -q "Merge pull request #"; then
+              PR_NUM=$(echo "$line" | sed -n 's/.*Merge pull request #\([0-9]\+\).*/\1/p')
+            elif echo "$line" | grep -qE "\(#[0-9]+\)$"; then
+              PR_NUM=$(echo "$line" | sed -n 's/.*(#\([0-9]\+\))$/\1/p')
+            fi
+            
+            if [ -n "$PR_NUM" ]; then
+              if grep -q " (#$PR_NUM)" /tmp/changelog/*.txt 2>/dev/null; then
+                continue
+              fi
+              
+              PR_INFO=$(gh pr view "$PR_NUM" --json title,headRefName,url --jq '{title: .title, head: .headRefName, url: .url}' 2>/dev/null || echo "")
+              if [ -n "$PR_INFO" ]; then
+                TITLE=$(echo "$PR_INFO" | jq -r '.title')
+                HEAD=$(echo "$PR_INFO" | jq -r '.head')
+                URL=$(echo "$PR_INFO" | jq -r '.url')
+                ENTRY="- [$TITLE]($URL) (#$PR_NUM)"
+                
+                if [[ "$HEAD" =~ ^feature/ ]]; then
+                  echo "$ENTRY" >> /tmp/changelog/features.txt
+                elif [[ "$HEAD" =~ ^bug/ ]]; then
+                  echo "$ENTRY" >> /tmp/changelog/bugfixes.txt
+                else
+                  echo "$ENTRY" >> /tmp/changelog/others.txt
+                fi
+              fi
+            fi
+          done
+          
+          echo "## Changelog" > /tmp/changelog/notes.md
+          echo "" >> /tmp/changelog/notes.md
+          
+          if [ -f /tmp/changelog/features.txt ]; then
+            echo "### Features" >> /tmp/changelog/notes.md
+            cat /tmp/changelog/features.txt >> /tmp/changelog/notes.md
+            echo "" >> /tmp/changelog/notes.md
+          fi
+          
+          if [ -f /tmp/changelog/bugfixes.txt ]; then
+            echo "### Bugfix" >> /tmp/changelog/notes.md
+            cat /tmp/changelog/bugfixes.txt >> /tmp/changelog/notes.md
+            echo "" >> /tmp/changelog/notes.md
+          fi
+          
+          if [ -f /tmp/changelog/others.txt ]; then
+            echo "### Autre" >> /tmp/changelog/notes.md
+            cat /tmp/changelog/others.txt >> /tmp/changelog/notes.md
+            echo "" >> /tmp/changelog/notes.md
+          fi
+          
+          if [ ! -f /tmp/changelog/features.txt ] && [ ! -f /tmp/changelog/bugfixes.txt ] && [ ! -f /tmp/changelog/others.txt ]; then
+            echo "Pas de changements détectés." >> /tmp/changelog/notes.md
+          fi
 
       - name: Créer la release GitHub et générer le Changelog
         env:
@@ -96,4 +233,62 @@ jobs:
           gh release create "$TAG" dist/* \
             --target "$TARGET" \
             --title "Release $TAG" \
-            --generate-notes
+            --notes-file /tmp/changelog/notes.md
+
+  deploy:
+    needs: [build-binary, test-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du commit de fusion
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+
+      - name: Télécharger les artefacts de build Rust
+        uses: actions/download-artifact@v4
+        with:
+          name: rust-artifacts
+          path: dist/
+
+      - name: Configurer l'accès SSH
+        env:
+          SSH_TOKEN: ${{ secrets.SSH_TOKEN }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_TOKEN" | tr -d '\r' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p $VPS_PORT -H "$VPS_IP" >> ~/.ssh/known_hosts
+
+      - name: Déployer et installer le paquet .deb sur le VPS
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_NOM: ${{ secrets.VPS_NOM }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
+        run: |
+          scp -o StrictHostKeyChecking=no -P $VPS_PORT -i ~/.ssh/id_rsa dist/simeis.deb $VPS_NOM@$VPS_IP:/tmp/simeis.deb || true
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa $VPS_NOM@$VPS_IP "echo '$VPS_PASSWORD' | sudo -S dpkg -i /tmp/simeis.deb && echo '$VPS_PASSWORD' | sudo -S systemctl restart simeis.service"
+
+      - name: Vérifier la connexion et la version déployée
+        env:
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_NOM: ${{ secrets.VPS_NOM }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -p $VPS_PORT -i ~/.ssh/id_rsa -L 8081:localhost:8081 -N -f $VPS_NOM@$VPS_IP
+          sleep 3
+          RESPONSE=$(curl -s --fail http://localhost:8081/version)
+          echo "Réponse de l'API : $RESPONSE"
+          ACTUAL_VERSION=$(echo "$RESPONSE" | python3 -c "import sys, json; print(json.loads(sys.stdin.read() or '{}').get('version', ''))")
+          EXPECTED_VERSION=$(grep -m1 '^version =' simeis-server/Cargo.toml | cut -d'"' -f2)
+          echo "Version attendue : $EXPECTED_VERSION"
+          echo "Version en ligne : $ACTUAL_VERSION"
+          
+          if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "Erreur : La version obtenue ($ACTUAL_VERSION) ne correspond pas à la version attendue ($EXPECTED_VERSION)"
+            exit 1
+          fi
+          
+          echo "Déploiement et version validés avec succès !"

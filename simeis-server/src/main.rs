@@ -45,7 +45,7 @@ fn start_game_thread(
 #[ntex::main]
 async fn main() -> std::io::Result<()> {
     #[cfg(not(feature = "testing"))]
-    let port = 8080;
+    let port = 8081;
 
     #[cfg(feature = "testing")]
     let port = 9345;

@@ -57,7 +57,8 @@ jobs:
             PR_OPEN=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
             
             if [[ -z "$PR_OPEN" || "$PR_OPEN" == "null" ]]; then
-              gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head "$BRANCH" || echo "⚠️ Impossible de créer la PR"
+              gh label create "bot/update" --color "8D54E9" --description "Updates dependencies" || true
+              gh pr create --title "Update dependances" --body "Mise a jour auto" --base main --head "$BRANCH" --label "bot/update" || echo "⚠️ Impossible de créer la PR"
             else
               echo "Une PR est déjà ouverte : #$PR_OPEN"
             fi
