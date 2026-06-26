@@ -109,3 +109,22 @@ On était déjà très familiers avec la CI, mais en s'interdisant d'utiliser le
 
 #### Amélioration à creuser (pas le temps)
 - Actuellement, tester notre architecture multi-conteneurs en local demande de saisir manuellement plusieurs commandes consécutives dans le terminal pour créer le réseau, configurer la sécurité et lier les deux conteneurs. Une amélioration simple et très efficace serait de mettre en place un fichier `docker-compose.yml`. Cela permettrait de centraliser la configuration du réseau virtuel, d'intégrer l'option de sécurité nécessaire pour le serveur, et de lancer l'ensemble de notre infrastructure (serveur + client) en une seule ligne de commande (`docker compose up`).
+
+---
+
+### TP7 - Déploiement Continu (CD) sur VPS
+
+#### Les ajouts
+
+- **Automatisation du déploiement (CD)** : Configuration d'un job `deploy` dans notre workflow de publication (`auto-release.yml`). Lors d'une nouvelle release, le workflow télécharge l'artefact du paquet `.deb` généré, prépare la clé privée SSH et l'IP du VPS à partir des secrets GitHub, puis utilise `scp` et `ssh` pour copier le paquet, l'installer (`dpkg -i`) et redémarrer le service `simeis.service` sur la machine distante.
+- **Validation automatique en ligne** : Après le déploiement sur le VPS, le workflow monte un tunnel SSH temporaire en tâche de fond (`ssh -L`) pour rediriger le port API sur le runner GitHub, puis effectue une requête `curl /version`. Il extrait ensuite la version JSON via Python et la compare au numéro de version dans `simeis-server/Cargo.toml`. Le job échoue si le serveur est injoignable ou si la version retournée n'est pas celle attendue.
+
+#### Ce qu'on a pu apprendre
+
+- **Configuration sécurisée de SSH en environnement non interactif** : Lors des premiers essais, la CI restait bloquée indéfiniment car SSH attendait une confirmation interactive pour valider l'empreinte du serveur distant. Après des recherches sur StackOverflow et la documentation de SSH, nous avons compris qu'il fallait utiliser l'option `-o StrictHostKeyChecking=no` pour bypasser cette invite manuelle, tout en utilisant `ssh-keyscan` pour enregistrer l'adresse de notre hôte dans les `known_hosts` de la CI.
+- **Interrogation sécurisée à travers un tunnel SSH** : Pour des raisons de sécurité, les ports du serveur distant sur le VPS ne sont pas ouverts au grand public sur le web. Pour vérifier si notre déploiement a réussi, nous avons dû apprendre à initier un tunnel SSH local à distance (`-L 8081:localhost:8081`) combiné aux options `-N` (ne pas exécuter de commande) et `-f` (passer SSH en arrière-plan). Cela permet au runner de faire un `curl` sur `localhost:8081` comme s'il était directement sur le VPS.
+
+#### Améliorations à creuser
+
+- **Sécurisation des clés d'hôte (Host Keys)** : Pour le moment, l'usage de `-o StrictHostKeyChecking=no` reste une solution de contournement rapide dans le script de déploiement. Pour renforcer la sécurité et éviter tout risque d'attaque par interception, il serait préférable de configurer proprement la clé publique du VPS à l'avance dans les variables de secrets et de la charger au moment du setup de SSH dans le runner pour pouvoir conserver une vérification stricte.
+- **Privilèges sudo non interactifs** : L'installation par `dpkg` et le redémarrage du service nécessitent des privilèges administrateur, que nous passons aujourd'hui en injectant le mot de passe via `echo "$VPS_PASSWORD" | sudo -S`. Il serait beaucoup plus propre de configurer les droits sudo de l'utilisateur de déploiement sur le VPS (via `/etc/sudoers`) pour lui autoriser uniquement ces deux commandes précises sans demande de mot de passe (`NOPASSWD`).
